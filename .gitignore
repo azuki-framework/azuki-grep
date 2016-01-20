@@ -1,7 +1,21 @@
 *.class
 
+# Test temporary
+/tmp
+
+# Eclipse 
+/.settings
+.project
+.classpath
+
+# Mac System Files #
+.DS_Store
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
+
+# Maven temporary
+/target
 
 # Package Files #
 *.jar
