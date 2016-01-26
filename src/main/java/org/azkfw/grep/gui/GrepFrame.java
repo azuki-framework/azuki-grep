@@ -63,7 +63,9 @@ public class GrepFrame extends JFrame {
 	private Grep grep;
 	
 	private JSplitPane splMain;
+	private JSplitPane splSub;
 	
+	private GrepConditionPanel pnlCondition;
 	private FileTree fileTree;
 	private JScrollPane fileTreeScroll;
 	
@@ -77,6 +79,8 @@ public class GrepFrame extends JFrame {
 		setLayout(null);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
+		pnlCondition = new GrepConditionPanel();
+		
 		fileTree = new FileTree();
 		fileTreeScroll = new JScrollPane(fileTree);
 
@@ -85,9 +89,14 @@ public class GrepFrame extends JFrame {
 		textEditerScroll.setColumnHeaderView(new TextGradationsView(textEditer));
 		textEditerScroll.setRowHeaderView(new TextLineNumberView(textEditer));
 		
+		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		splSub.setTopComponent(pnlCondition);
+		splSub.setBottomComponent(fileTreeScroll);
+		splSub.setDividerLocation(200);
+		
 		splMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splMain.setLocation(0, 0);
-		splMain.setLeftComponent(fileTreeScroll);
+		splMain.setLeftComponent(splSub);
 		splMain.setRightComponent(textEditerScroll);
 		splMain.setDividerLocation(360);
 		add(splMain);
