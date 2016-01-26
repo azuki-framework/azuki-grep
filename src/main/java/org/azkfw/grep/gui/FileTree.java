@@ -21,10 +21,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.image.ImageProducer;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,8 +63,24 @@ public class FileTree extends JTree {
 	private TreePath rootPath;
 
 	private File rootDirectory;
+	
+	private Image imgFile;
+	private Image imgFolder;
 
 	public FileTree() {
+		URL urlFile = this.getClass().getResource("/org/azkfw/grep/gui/file.png");
+		URL urlFolder = this.getClass().getResource("/org/azkfw/grep/gui/folder.png");
+		try {
+		imgFile = createImage((ImageProducer)urlFile.getContent());
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		try {
+		imgFolder = createImage((ImageProducer)urlFolder.getContent());
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		
 		//setCellRenderer(new HighlightTreeCellRenderer());
 		setCellRenderer(new FindFileTreeCellRenderer());
 		
@@ -128,7 +148,11 @@ public class FileTree extends JTree {
 	}
 
 	private String toString(final char c) {
-		return Character.toString(c);
+		if ('\\' == c) {
+			return "\\\\";
+		} else {
+			return Character.toString(c);
+		}
 	}
 
 	public void expandAll() {
@@ -143,7 +167,7 @@ public class FileTree extends JTree {
 		}
 	}
 	
-	private static class FindFileTreeCellRenderer extends JPanel implements TreeCellRenderer{
+	private class FindFileTreeCellRenderer extends JPanel implements TreeCellRenderer{
 
 		/** serialVersionUID */
 		private static final long serialVersionUID = 433998392285167422L;
@@ -154,11 +178,10 @@ public class FileTree extends JTree {
 		private JLabel lblIcon;
 		private JTextPane txtTitle;
 		
-		private static Color backgroundSelectionColor = new Color(220, 240, 255);
+		private Color backgroundSelectionColor = new Color(220, 240, 255);
 		
 		private MutableAttributeSet atrDefault;
 		private MutableAttributeSet atrMatch;
-
 
 		public FindFileTreeCellRenderer () {
 			setLayout(null);
@@ -216,16 +239,23 @@ public class FileTree extends JTree {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
 				Object obj = node.getUserObject();
 				if (obj instanceof FindFileObject) {
+					// File
 					Matcher m = PTN_MATCH.matcher(txtTitle.getText());
 					if (m.find()) {
 						txtTitle.getStyledDocument().setCharacterAttributes(m.start(), m.end(), atrMatch, true);
 					}
+					icon.setImage(imgFile);
+				} else if (obj instanceof String) {
+					// String
+					icon.setImage(imgFolder);
 				}
-			}			
+			}
 
 			FontMetrics fm = txtTitle.getFontMetrics(txtTitle.getFont());
 			int width = fm.stringWidth(value.toString());
 			
+			lblIcon.setLocation(0, 0);
+			lblIcon.setSize(24, 24);
 			txtTitle.setLocation(24,  0);
 			txtTitle.setSize(width + (insets.left+insets.right), 24);
 

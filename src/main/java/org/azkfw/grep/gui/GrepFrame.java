@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -61,6 +62,8 @@ public class GrepFrame extends JFrame {
 	
 	private Grep grep;
 	
+	private JSplitPane splMain;
+	
 	private FileTree fileTree;
 	private JScrollPane fileTreeScroll;
 	
@@ -76,14 +79,18 @@ public class GrepFrame extends JFrame {
 		
 		fileTree = new FileTree();
 		fileTreeScroll = new JScrollPane(fileTree);
-		fileTreeScroll.setLocation(0, 0);
-		add(fileTreeScroll);
 
 		textEditer = new TextEditor();
 		textEditerScroll = new JScrollPane(textEditer);
 		textEditerScroll.setColumnHeaderView(new TextGradationsView(textEditer));
 		textEditerScroll.setRowHeaderView(new TextLineNumberView(textEditer));
-		add(textEditerScroll);
+		
+		splMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		splMain.setLocation(0, 0);
+		splMain.setLeftComponent(fileTreeScroll);
+		splMain.setRightComponent(textEditerScroll);
+		splMain.setDividerLocation(360);
+		add(splMain);
 		
 		statusBar = new StatusBar();
 		add(statusBar);
@@ -118,9 +125,7 @@ public class GrepFrame extends JFrame {
 				int width = getWidth() - (insets.left + insets.right);
 				int height = getHeight() - (insets.top + insets.bottom);
 				
-				fileTreeScroll.setSize(400, height-24);
-				textEditerScroll.setLocation(400, 0);
-				textEditerScroll.setSize(width-400, height-24);
+				splMain.setSize(width, height-24);
 				
 				statusBar.setLocation(0, height-24);
 				statusBar.setSize(width, 24);
@@ -131,7 +136,8 @@ public class GrepFrame extends JFrame {
 			@Override
 			public void windowOpened(WindowEvent e) {
 				GrepCondition condition = new GrepCondition();
-				condition.setTargetDirectory(new File("/Users/Kawakicchi/git/azuki-grep"));
+				condition.setTargetDirectory(new File("."));
+				//condition.setTargetDirectory(new File("/Users/Kawakicchi/git/azuki-grep"));
 				//condition.setTargetDirectory(new File("/Users/Kawakicchi/iPhone workspace"));
 				
 				grep.start(condition);
@@ -155,16 +161,18 @@ public class GrepFrame extends JFrame {
 					JTree tree = (JTree) e.getSource();
 					TreePath path = tree.getPathForLocation(e.getX(), e.getY());
 
-					Object obj = path.getLastPathComponent();
-					if (obj instanceof DefaultMutableTreeNode) {
-						Object obj2 = ((DefaultMutableTreeNode) obj).getUserObject();
-						if (obj2 instanceof FindFileObject) {
-							FindFile ff = ((FindFileObject) obj2).getFindFile();
-							try {
-								textEditer.setText( FileUtils.readFileToString(ff.getFile(), ff.getCharset()) );
-								textEditer.setCaretPosition(ff.getMatchs().get(0).getStart());
-							} catch (IOException ex) {
-								ex.printStackTrace();
+					if (null != path) {
+						Object obj = path.getLastPathComponent();
+						if (obj instanceof DefaultMutableTreeNode) {
+							Object obj2 = ((DefaultMutableTreeNode) obj).getUserObject();
+							if (obj2 instanceof FindFileObject) {
+								FindFile ff = ((FindFileObject) obj2).getFindFile();
+								try {
+									textEditer.setText( FileUtils.readFileToString(ff.getFile(), ff.getCharset()) );
+									textEditer.setCaretPosition(ff.getMatchs().get(0).getStart());
+								} catch (IOException ex) {
+									ex.printStackTrace();
+								}
 							}
 						}
 					}
