@@ -18,7 +18,7 @@
 package org.azkfw.grep;
 
 /**
- * 
+ * このクラスは、Grepのイベント情報を保持するクラスです。
  * @author Kawakicchi
  */
 public class GrepEvent {

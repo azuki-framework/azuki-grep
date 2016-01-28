@@ -17,30 +17,14 @@
  */
 package org.azkfw.grep.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Image;
 import java.awt.image.ImageProducer;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import javax.swing.JTree;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -61,27 +45,24 @@ public class FileTree extends JTree {
 
 	private File rootDirectory;
 	
-	private Image imgFile;
-	private Image imgFolder;
-
-	public FileTree() {
+	public FileTree() {		
+		setRowHeight(18);
+		
+		FindFileTreeCellRenderer renderer = new FindFileTreeCellRenderer();
 		URL urlFile = this.getClass().getResource("/org/azkfw/grep/gui/file.png");
 		URL urlFolder = this.getClass().getResource("/org/azkfw/grep/gui/folder.png");
 		try {
-		imgFile = createImage((ImageProducer)urlFile.getContent());
+			renderer.setFileImage( createImage((ImageProducer)urlFile.getContent()) );
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 		try {
-		imgFolder = createImage((ImageProducer)urlFolder.getContent());
+			renderer.setFolderImage( createImage((ImageProducer)urlFolder.getContent()) );
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-		
-		setRowHeight(18);
-		
 		//setCellRenderer(new HighlightTreeCellRenderer());
-		setCellRenderer(new FindFileTreeCellRenderer());
+		setCellRenderer(renderer);
 		
 		root = new DefaultMutableTreeNode("");
 		
@@ -166,124 +147,6 @@ public class FileTree extends JTree {
 		}
 	}
 	
-	private class FindFileTreeCellRenderer implements TreeCellRenderer{
-
-		@Override
-		public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean isSelected, final boolean expanded,
-				final boolean leaf, final int row, final boolean hasFocus) {
-			
-			FindFileTreeCell cell = new FindFileTreeCell(value);
-
-			cell.setSelected(isSelected);
-
-			return cell;
-		}
-	}
-	
-	private class FindFileTreeCell extends JPanel{
-
-		/** serialVersionUID */
-		private static final long serialVersionUID = 433998392285167422L;
-
-		private Pattern PTN_MATCH = Pattern.compile("\\([0-9]+ matches\\)");
-		
-		private ImageIcon icon;
-		private JLabel lblIcon;
-		private JTextPane txtTitle;
-		
-		private Color backgroundSelectionColor = new Color(220, 240, 255);
-		
-		private MutableAttributeSet atrDefault;
-		private MutableAttributeSet atrMatch;
-		
-		private int iconSize = 20;
-
-		public FindFileTreeCell(final Object value) {
-			setLayout(null);
-		
-			atrDefault = new SimpleAttributeSet();
-			StyleConstants.setForeground(atrDefault, new Color(20, 20, 20));
-			atrMatch = new SimpleAttributeSet();
-			StyleConstants.setForeground(atrMatch, new Color(40,40,200));
-
-			icon = new ImageIcon();
-			lblIcon = new JLabel(icon);
-			lblIcon.setLocation(0, 0);
-			lblIcon.setSize(iconSize, iconSize);
-			lblIcon.setBackground(Color.blue);
-			add(lblIcon);
-			
-			txtTitle = new JTextPane();
-			//txtTitle.setBackground(Color.red);
-
-			txtTitle.setBounds(iconSize, 0, 200, 20);
-
-			txtTitle.setOpaque(false);
-			txtTitle.setBorder(BorderFactory.createEmptyBorder());
-			txtTitle.setForeground(Color.BLACK);
-			//txtTitle.setBackground(Color.WHITE);
-			txtTitle.setEditable(false);
-
-			add(txtTitle);
-			
-			setPreferredSize(new Dimension(iconSize + 200, 20));
-			
-			/*
-			addComponentListener(new ComponentAdapter() {
-				@Override
-				public void componentResized(ComponentEvent e) {
-					Insets insets = getInsets();
-					int width = getWidth() - (insets.left + insets.right);
-					int height = getHeight() - (insets.top + insets.bottom);
-					txtTitle.setLocation(iconSize, 0);
-					txtTitle.setSize(width-iconSize, height);
-				}
-			});
-			*/
-			
-			//Insets insets = txtTitle.getInsets();
-			txtTitle.setText(value.toString());
-			int length = txtTitle.getDocument().getLength();
-
-			txtTitle.getStyledDocument().setCharacterAttributes(0, length, atrDefault, true);
-			
-			if (value instanceof DefaultMutableTreeNode) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
-				Object obj = node.getUserObject();
-				if (obj instanceof FindFileObject) {
-					// File
-					Matcher m = PTN_MATCH.matcher(txtTitle.getText());
-					if (m.find()) {
-						txtTitle.getStyledDocument().setCharacterAttributes(m.start(), m.end(), atrMatch, true);
-					}
-					icon.setImage(imgFile);
-				} else if (obj instanceof String) {
-					// String
-					icon.setImage(imgFolder);
-				}
-			}
-
-			FontMetrics fm = txtTitle.getFontMetrics(txtTitle.getFont());
-			int width = fm.stringWidth(value.toString());
-			System.out.println(value.toString() + " " + width);
-			
-			lblIcon.setLocation(0, 0);
-			lblIcon.setSize(iconSize, iconSize);
-			
-			txtTitle.setLocation(iconSize,  0);
-			txtTitle.setSize(width, 20);
-
-			Dimension dm = new Dimension(width + iconSize, 20);
-			setSize(dm);
-			setPreferredSize(dm);
-			
-		}
-		
-		public void setSelected(final boolean isSelected) {
-			setBackground(isSelected ? backgroundSelectionColor : Color.WHITE);
-		}
-	}
-		
 	public static class FindFileObject {
 		private FindFile file;
 		public FindFileObject(final FindFile file) {

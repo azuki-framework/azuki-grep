@@ -23,9 +23,23 @@ package org.azkfw.grep;
  */
 public interface GrepListener {
 
+	/**
+	 * Grep開始時に呼び出される
+	 * @param e イベント
+	 */
 	public void grepStart(final GrepEvent e);
 	
-	public void grepFinished(final GrepEvent e);
+	/**
+	 * Grep終了時に呼び出される
+	 * @param e イベント
+	 * @param r 結果
+	 */
+	public void grepFinished(final GrepEvent e, final GrepResult r);
 	
+	/**
+	 * 対象ファイルが見つかった時に呼び出される
+	 * @param e イベント
+	 * @param f ファイル情報
+	 */
 	public void grepFindFile(final GrepEvent e, final FindFile f);
 }

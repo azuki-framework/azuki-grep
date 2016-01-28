@@ -29,7 +29,7 @@ public class GrepAdapter implements GrepListener{
 	}
 
 	@Override
-	public void grepFinished(final GrepEvent e) {
+	public void grepFinished(final GrepEvent e, final GrepResult r) {
 		
 	}
 

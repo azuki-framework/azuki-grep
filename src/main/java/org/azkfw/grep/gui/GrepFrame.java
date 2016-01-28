@@ -17,7 +17,10 @@
  */
 package org.azkfw.grep.gui;
 
+import java.awt.Color;
+import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -28,10 +31,13 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -44,6 +50,7 @@ import org.azkfw.grep.Grep;
 import org.azkfw.grep.GrepCondition;
 import org.azkfw.grep.GrepEvent;
 import org.azkfw.grep.GrepListener;
+import org.azkfw.grep.GrepResult;
 import org.azkfw.grep.gui.FileTree.FindFileObject;
 
 /**
@@ -72,6 +79,9 @@ public class GrepFrame extends JFrame {
 	private TextEditor textEditer;
 	private JScrollPane textEditerScroll;
 
+	private JMenuBar menuBar;
+	private JMenu menuFile;
+
 	private StatusBar statusBar;
 	
 	public GrepFrame() {
@@ -89,33 +99,46 @@ public class GrepFrame extends JFrame {
 		textEditerScroll.setColumnHeaderView(new TextGradationsView(textEditer));
 		textEditerScroll.setRowHeaderView(new TextLineNumberView(textEditer));
 		
-		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		splSub.setTopComponent(pnlCondition);
 		splSub.setBottomComponent(fileTreeScroll);
 		splSub.setDividerLocation(200);
+		//splSub.setBorder(new LineBorder(Color.RED, 2, true));
+		splSub.setBorder(null);
 		
-		splMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		splMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		splMain.setLocation(0, 0);
 		splMain.setLeftComponent(splSub);
 		splMain.setRightComponent(textEditerScroll);
 		splMain.setDividerLocation(360);
+		splMain.setBorder(null);
+
 		add(splMain);
 		
 		statusBar = new StatusBar();
 		add(statusBar);
 		
+		// Menu -------------------------------------
+		menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		menuFile = new JMenu("File");
+		menuBar.add(menuFile);
+		// ==========================================
+		
 		grep = new Grep();
 		grep.addGrepListener(new GrepListener() {
 			@Override
-			public void grepStart(GrepEvent e) {
+			public void grepStart(final GrepEvent e) {
 
 				fileTree.setRootDirectory(e.getSource().getCondition().getTargetDirectory());
 			}
 			@Override
-			public void grepFinished(GrepEvent e) {
+			public void grepFinished(final GrepEvent e, final GrepResult r) {
 				String message = String.format("%d 件見つかりました", e.getSource().getStatistics().getFindFileCount());
 				statusBar.setMessage(message);
 				
+				System.out.println(String.format("%.2f sec", (double) (r.getProcessingNanoTime()) / 1000000000.f));
+
 				fileTree.expandAll();
 			}
 			@Override
@@ -132,7 +155,7 @@ public class GrepFrame extends JFrame {
 			public void componentResized(final ComponentEvent e) {
 				Insets insets = getInsets();
 				int width = getWidth() - (insets.left + insets.right);
-				int height = getHeight() - (insets.top + insets.bottom);
+				int height = getHeight() - (insets.top + insets.bottom) - menuBar.getHeight();
 				
 				splMain.setSize(width, height-24);
 				
@@ -189,6 +212,9 @@ public class GrepFrame extends JFrame {
 			}
 		});
 		
-		setSize(1024, 768);
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		Rectangle rt = env.getMaximumWindowBounds();
+		rt.height -= 200;
+		setBounds(rt);
 	}
 }

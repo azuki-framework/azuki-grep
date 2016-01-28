@@ -23,4 +23,18 @@ package org.azkfw.grep;
  */
 public class GrepResult {
 
+	public long processingNanoTime;
+	
+	public GrepResult() {
+		
+	}
+	
+	public void setProcessingNanoTime(final long nanoTime) {
+		processingNanoTime = nanoTime;
+	}
+	
+	public long getProcessingNanoTime() {
+		return processingNanoTime;
+	}
+	
 }

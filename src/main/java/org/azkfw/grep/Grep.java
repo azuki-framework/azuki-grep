@@ -101,19 +101,22 @@ public class Grep {
 								listener.grepStart(event);
 							}
 						}
-						long nanoStart = System.nanoTime();
+
+						long startNanoTime = System.nanoTime();
 
 						doThreadMain();
 
 						runningFlag = Boolean.FALSE;
 
-						long nanoEnd = System.nanoTime();
-						System.out.println(String.format("%.2f sec", (double) (nanoEnd - nanoStart) / 1000000000.f));
+						long endNanoTime = System.nanoTime();
+
+						GrepResult result = new GrepResult();
+						result.setProcessingNanoTime(endNanoTime - startNanoTime);
 
 						// call listener finished
 						synchronized (listeners) {
 							for (GrepListener listener : listeners) {
-								listener.grepFinished(event);
+								listener.grepFinished(event, result);
 							}
 						}
 					}
