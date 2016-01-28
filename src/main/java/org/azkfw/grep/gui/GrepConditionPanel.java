@@ -20,7 +20,6 @@ package org.azkfw.grep.gui;
 import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -32,6 +31,9 @@ import javax.swing.JTextField;
  *
  */
 public class GrepConditionPanel extends JPanel {
+
+	/** serialVersionUID */
+	private static final long serialVersionUID = 2498823616809145690L;
 
 	private static final int COMPONENT_HEIGHT = 24;
 	private static final int COMPONENT_MARGIN = 6;
@@ -86,7 +88,7 @@ public class GrepConditionPanel extends JPanel {
 			public void componentResized(final ComponentEvent e) {
 				Insets insets = getInsets();
 				int width = getWidth() - (insets.left + insets.right);
-				int height = getHeight() - (insets.top + insets.bottom);
+				//int height = getHeight() - (insets.top + insets.bottom);
 				
 				lblKeyword.setSize(width-(COMPONENT_MARGIN*2), COMPONENT_HEIGHT);
 				txtKeyword.setSize(width-(COMPONENT_MARGIN*2), COMPONENT_HEIGHT);

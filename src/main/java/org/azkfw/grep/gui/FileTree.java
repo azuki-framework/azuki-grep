@@ -22,9 +22,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Image;
-import java.awt.Insets;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.ImageProducer;
 import java.io.File;
 import java.io.IOException;
@@ -80,6 +77,8 @@ public class FileTree extends JTree {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+		
+		setRowHeight(18);
 		
 		//setCellRenderer(new HighlightTreeCellRenderer());
 		setCellRenderer(new FindFileTreeCellRenderer());
@@ -167,7 +166,21 @@ public class FileTree extends JTree {
 		}
 	}
 	
-	private class FindFileTreeCellRenderer extends JPanel implements TreeCellRenderer{
+	private class FindFileTreeCellRenderer implements TreeCellRenderer{
+
+		@Override
+		public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean isSelected, final boolean expanded,
+				final boolean leaf, final int row, final boolean hasFocus) {
+			
+			FindFileTreeCell cell = new FindFileTreeCell(value);
+
+			cell.setSelected(isSelected);
+
+			return cell;
+		}
+	}
+	
+	private class FindFileTreeCell extends JPanel{
 
 		/** serialVersionUID */
 		private static final long serialVersionUID = 433998392285167422L;
@@ -182,8 +195,10 @@ public class FileTree extends JTree {
 		
 		private MutableAttributeSet atrDefault;
 		private MutableAttributeSet atrMatch;
+		
+		private int iconSize = 20;
 
-		public FindFileTreeCellRenderer () {
+		public FindFileTreeCell(final Object value) {
 			setLayout(null);
 		
 			atrDefault = new SimpleAttributeSet();
@@ -194,13 +209,14 @@ public class FileTree extends JTree {
 			icon = new ImageIcon();
 			lblIcon = new JLabel(icon);
 			lblIcon.setLocation(0, 0);
+			lblIcon.setSize(iconSize, iconSize);
 			lblIcon.setBackground(Color.blue);
 			add(lblIcon);
 			
 			txtTitle = new JTextPane();
 			//txtTitle.setBackground(Color.red);
 
-			txtTitle.setBounds(0, 0, 200, 24);
+			txtTitle.setBounds(iconSize, 0, 200, 20);
 
 			txtTitle.setOpaque(false);
 			txtTitle.setBorder(BorderFactory.createEmptyBorder());
@@ -210,30 +226,26 @@ public class FileTree extends JTree {
 
 			add(txtTitle);
 			
-			setPreferredSize(new Dimension(200, 24));
+			setPreferredSize(new Dimension(iconSize + 200, 20));
 			
+			/*
 			addComponentListener(new ComponentAdapter() {
 				@Override
 				public void componentResized(ComponentEvent e) {
 					Insets insets = getInsets();
 					int width = getWidth() - (insets.left + insets.right);
 					int height = getHeight() - (insets.top + insets.bottom);
-					lblIcon.setSize(24, 24);
-					txtTitle.setLocation(height, 0);
-					txtTitle.setSize(width-24, height);
+					txtTitle.setLocation(iconSize, 0);
+					txtTitle.setSize(width-iconSize, height);
 				}
 			});
-		}
-		
-		@Override
-		public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean isSelected, final boolean expanded,
-				final boolean leaf, final int row, final boolean hasFocus) {
+			*/
 			
-			Insets insets = txtTitle.getInsets();
+			//Insets insets = txtTitle.getInsets();
 			txtTitle.setText(value.toString());
 			int length = txtTitle.getDocument().getLength();
 
-			txtTitle.getStyledDocument().setCharacterAttributes(0, length, atrDefault, true);			
+			txtTitle.getStyledDocument().setCharacterAttributes(0, length, atrDefault, true);
 			
 			if (value instanceof DefaultMutableTreeNode) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
@@ -253,17 +265,22 @@ public class FileTree extends JTree {
 
 			FontMetrics fm = txtTitle.getFontMetrics(txtTitle.getFont());
 			int width = fm.stringWidth(value.toString());
+			System.out.println(value.toString() + " " + width);
 			
 			lblIcon.setLocation(0, 0);
-			lblIcon.setSize(24, 24);
-			txtTitle.setLocation(24,  0);
-			txtTitle.setSize(width + (insets.left+insets.right), 24);
+			lblIcon.setSize(iconSize, iconSize);
+			
+			txtTitle.setLocation(iconSize,  0);
+			txtTitle.setSize(width, 20);
 
-			Dimension dm = new Dimension(width + (insets.left+insets.right) + 24, 24);
+			Dimension dm = new Dimension(width + iconSize, 20);
+			setSize(dm);
 			setPreferredSize(dm);
 			
+		}
+		
+		public void setSelected(final boolean isSelected) {
 			setBackground(isSelected ? backgroundSelectionColor : Color.WHITE);
-			return this;
 		}
 	}
 		
