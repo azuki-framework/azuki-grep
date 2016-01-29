@@ -171,6 +171,8 @@ public class GrepFrame extends JFrame {
 				condition.setTargetDirectory(new File("."));
 				//condition.setTargetDirectory(new File("/Users/Kawakicchi/git/azuki-grep"));
 				//condition.setTargetDirectory(new File("/Users/Kawakicchi/iPhone workspace"));
+
+				condition.setFileNamePatterns("????file*.java , *grep*");
 				
 				grep.start(condition);
 			}

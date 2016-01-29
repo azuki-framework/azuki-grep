@@ -212,15 +212,10 @@ public class Grep {
 
 	private class Scanner implements Runnable {
 
-		private Pattern ptn;
-
 		private Grep grep;
 		private GrepCondition condition;
 
 		public Scanner(final Grep parent, final GrepCondition condition) {
-			ptn = Pattern.compile("^.*\\.java$");
-			//ptn = Pattern.compile("^.*\\.[mch]$");
-
 			grep = parent;
 			this.condition = condition;
 		}
@@ -236,9 +231,20 @@ public class Grep {
 
 		private boolean doFile(final File file) {
 			grep.statistics.countupSearchFile(file);
-			if (ptn.matcher(file.getAbsolutePath()).matches()) {
+			
+			String name = file.getName();
+			List<Pattern> ptns = condition.getFileNamePatterns();
+			if ( 0 == ptns.size() ) {
 				grep.statistics.countupTargetFile(file);
 				grep.offerFile(file);
+			} else {
+				for (Pattern ptn : ptns) {
+					if (ptn.matcher(name).matches()) {
+						grep.statistics.countupTargetFile(file);
+						grep.offerFile(file);
+						break;
+					}
+				}
 			}
 			return true;
 		}

@@ -18,17 +18,31 @@
 package org.azkfw.grep;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Kawakicchi
  *
  */
 public class GrepCondition {
+	
+	public static void main(final String[] args) {
+		GrepCondition condition = new GrepCondition();
+		condition.setFileNamePatterns("*.java , ?.java , !x");
+	}
 
+	private static final Pattern PTN_FILE_NAME_SPLIT = Pattern.compile("[\\s]*,[\\s]*");
+
+	private String containingText;
+	
 	private File targetDirectory;
 	
+	private List<Pattern> fileNamePatterns;
+	
 	public GrepCondition() {
-		
+		fileNamePatterns = new ArrayList<Pattern>();
 	}
 	
 	public void setTargetDirectory(final File directory) {
@@ -43,4 +57,40 @@ public class GrepCondition {
 		return targetDirectory;
 	}
 	
+	/**
+	 * comma
+	 * @param patterns
+	 */
+	public void setFileNamePatterns(final String patterns) {
+		setFileNamePatterns(patterns, Pattern.CASE_INSENSITIVE);
+	}
+	
+	/**
+	 * comma
+	 * @param patterns
+	 */
+	public void setFileNamePatterns(final String patterns, final int flags) {
+		fileNamePatterns.clear();
+		String[] split = patterns.split("[\\s]*,[\\s]*");
+		for (String str : split) {
+			// System.out.println(str);
+			String ptn = str.replaceAll("\\.", "\\\\.");
+			ptn = ptn.replaceAll("\\*", ".*");
+			ptn = ptn.replaceAll("\\?", ".+");
+			ptn = ptn.replaceAll("\\!", "^");
+			// System.out.println(ptn);
+			fileNamePatterns.add( Pattern.compile(ptn, flags) );
+		}
+	}
+	
+	public List<Pattern> getFileNamePatterns() {
+		return fileNamePatterns;
+	}	
+	
+	public void setContainingText(final String text) {
+		containingText = text;
+	}
+	public String getContainingText() {
+		return containingText;
+	}
 }
