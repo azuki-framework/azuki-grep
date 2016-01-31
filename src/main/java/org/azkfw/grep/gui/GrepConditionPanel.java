@@ -81,7 +81,7 @@ public class GrepConditionPanel extends JPanel {
 		lblContainingText.setLocation(x, y);
 		add(lblContainingText);
 		y += COMPONENT_HEIGHT;
-		txtContainingText1 = new JTextField("String");
+		txtContainingText1 = new JTextField("");
 		txtContainingText1.setLocation(x, y);
 		add(txtContainingText1);
 		y += COMPONENT_HEIGHT;
@@ -98,7 +98,7 @@ public class GrepConditionPanel extends JPanel {
 		lblFileNamePatterns.setLocation(x, y);
 		add(lblFileNamePatterns);
 		y += COMPONENT_HEIGHT;
-		txtFileNamePatterns = new JTextField("*.java");
+		txtFileNamePatterns = new JTextField("");
 		txtFileNamePatterns.setLocation(x, y);
 		add(txtFileNamePatterns);
 		y += COMPONENT_HEIGHT + COMPONENT_SPACE;

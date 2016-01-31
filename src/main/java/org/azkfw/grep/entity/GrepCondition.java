@@ -64,6 +64,7 @@ public class GrepCondition {
 	 * @param patterns
 	 */
 	public void setFileNamePatterns(final String patterns) {
+    	System.out.println("setFileNamePatterns:"+patterns);
 		setFileNamePatterns(patterns, Pattern.CASE_INSENSITIVE);
 	}
 	
@@ -98,6 +99,7 @@ public class GrepCondition {
 	 * @param directorys ディレクトリ（;区切り)
 	 */
 	public void setTargetDirectorys(final String directorys) {
+    	System.out.println("setTargetDirectorys:"+directorys);
 		targetDirectorysPlain = directorys;
 		targetDirectorys.clear();
 		String[] split = directorys.split("[\\s]*;[\\s]*");
