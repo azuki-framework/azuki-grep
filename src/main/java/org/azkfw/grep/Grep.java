@@ -18,18 +18,14 @@
 package org.azkfw.grep;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
-import org.azkfw.grep.util.FormatUtility;
-import org.mozilla.universalchardet.UniversalDetector;
+import org.azkfw.grep.cash.CashStore;
+import org.azkfw.grep.entity.GrepMatchFile;
+import org.azkfw.grep.entity.GrepCondition;
 
 /**
  * 
@@ -37,21 +33,11 @@ import org.mozilla.universalchardet.UniversalDetector;
  */
 public class Grep {
 
-	public static void main(final String[] args) {
-		GrepCondition condition = new GrepCondition();
-		
-		Grep grep = new Grep();
-
-		System.out.println("Start");
-		grep.start(condition);
-		grep.waitFor();
-		System.out.println("end");
-	}
-
 	private GrepEvent event;
 	private List<GrepListener> listeners;
 
 	private Boolean runningFlag;
+	@SuppressWarnings("unused")
 	private Boolean stopRequest;
 
 	private GrepCondition condition;
@@ -85,6 +71,7 @@ public class Grep {
 
 	public boolean start(final GrepCondition condition) {
 		boolean result = false;
+
 		synchronized (runningFlag) {
 			if (!runningFlag) {
 				this.condition = condition;
@@ -150,12 +137,12 @@ public class Grep {
 		statistics.reset();
 		files = new LinkedList<File>();
 
-		scanner = new Thread(new Scanner(this, condition));
+		scanner = new Thread(new GrepScanner(this, condition));
 		scanner.start();
 
 		searchers = new ArrayList<Thread>();
 		for (int i = 0; i < 5; i++) {
-			searchers.add(new Thread(new Searcher(this, condition)));
+			searchers.add(new Thread(new GrepSearcher(this, condition, store)));
 		}
 		for (Thread thread : searchers) {
 			thread.start();
@@ -180,29 +167,38 @@ public class Grep {
 		return true;
 	}
 
-	private void offerFile(final File file) {
+	void searchFile(final File file) {
+		statistics.countupSearchFile(file);
+	}
+	
+	void offerFile(final File file) {
 		synchronized (files) {
+			statistics.countupTargetFile(file);
+			
 			files.offer(file);
 		}
 	}
 
-	private File pollFile() {
+	File pollFile() {
 		File file = null;
 		synchronized (files) {
 			file = files.poll();
 		}
 		return file;
 	}
-	private void findFile(final FindFile file) {
+	
+	void findFile(final GrepMatchFile file) {
 		// call listener finished
 		synchronized (listeners) {
+			statistics.countupFindFile(file.getFile());
+
 			for (GrepListener listener : listeners) {
 				listener.grepFindFile(event, file);
 			}
 		}
 	}
 
-	private boolean isSearcherStop() {
+	boolean isSearcherStop() {
 		if (scanner.isAlive())
 			return false;
 		if (0 < files.size())
@@ -210,152 +206,6 @@ public class Grep {
 		return true;
 	}
 
-	private class Scanner implements Runnable {
-
-		private Grep grep;
-		private GrepCondition condition;
-
-		public Scanner(final Grep parent, final GrepCondition condition) {
-			grep = parent;
-			this.condition = condition;
-		}
-
-		public void run() {
-			File file = condition.getTargetDirectory();
-			if (file.isFile()) {
-				doFile(file);
-			} else if (file.isDirectory()) {
-				doDirectory(file);
-			}
-		}
-
-		private boolean doFile(final File file) {
-			grep.statistics.countupSearchFile(file);
-			
-			String name = file.getName();
-			List<Pattern> ptns = condition.getFileNamePatterns();
-			if ( 0 == ptns.size() ) {
-				grep.statistics.countupTargetFile(file);
-				grep.offerFile(file);
-			} else {
-				for (Pattern ptn : ptns) {
-					if (ptn.matcher(name).matches()) {
-						grep.statistics.countupTargetFile(file);
-						grep.offerFile(file);
-						break;
-					}
-				}
-			}
-			return true;
-		}
-
-		private boolean doDirectory(final File directory) {
-			File[] files = directory.listFiles();
-			for (File file : files) {
-				if (file.isFile()) {
-					doFile(file);
-				} else if (file.isDirectory()) {
-					doDirectory(file);
-				}
-			}
-			return true;
-		}
-	}
-
-	private class Searcher implements Runnable {
-
-		private Grep grep;
-		private GrepCondition condition;
-
-		public Searcher(final Grep parent, final GrepCondition condition) {
-			grep = parent;
-			this.condition = condition;
-		}
-
-		public void run() {
-			while (!grep.isSearcherStop()) {
-				File file = grep.pollFile();
-				if (null != file) {
-					search(file);
-				} else {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-		}
-
-		private void search(final File file) {
-			try {
-				CashFile cashFile = grep.store.getFile(file);
-				if (null == cashFile) {
-					String encode = getCharset(file);
-					if (encode == null) {
-						encode = System.getProperty("file.encoding");
-					}
-					String text = FileUtils.readFileToString(file, encode);
-					if (text.charAt(0) == 65279) {// UTF-8 marker
-						text = text.substring(1);
-					}
-					cashFile = new CashFile(file, text, encode);
-					grep.statistics.addTotalReadFileSize(cashFile.getLength());
-				} else {
-					grep.statistics.addTotalCashFileSize(cashFile.getLength());
-				}
-
-				// ----------------------------------------------------
-				List<GrepMatch> matchs = new ArrayList<GrepMatch>();
-				Matcher m = Pattern.compile("String",Pattern.CASE_INSENSITIVE ).matcher(cashFile.getSource());
-				while (m.find()) {
-					String word = cashFile.getSource().substring(m.start(), m.end());
-					GrepMatch match = new GrepMatch(word, m.start(), m.end());
-					matchs.add(match);
-				}
-				if (0 < matchs.size()) {
-					grep.statistics.countupFindFile(file);
-					
-					FindFile findFile = new FindFile(file, cashFile.getCharset(), matchs);
-					grep.findFile(findFile);
-				}
-				// ----------------------------------------------------
-
-				grep.store.push(cashFile);
-
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-
-		private String getCharset(final File file) {
-			String charset = null;
-			FileInputStream stream = null;
-			try {
-				stream = new FileInputStream(file);
-				byte[] buf = new byte[4096];
-				UniversalDetector detector = new UniversalDetector(null);
-				int size;
-				while ((size = stream.read(buf)) > 0 && !detector.isDone()) {
-					detector.handleData(buf, 0, size);
-				}
-				detector.dataEnd();
-				charset = detector.getDetectedCharset();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				if (null != stream) {
-					try {
-						stream.close();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-			return charset;
-		}
-	}
-	
 	public class BaseGrepStatistics implements GrepStatistics{
 
 		/** トータルファイル数 */
@@ -365,41 +215,26 @@ public class Grep {
 		/** 該当ファイル数 */
 		private long totalFindFile;
 		
-		private long totalReadFileSize;
-		private long totalCashFileSize;
-		
 		public void reset() {
 			totalSearchFile = 0;
 			totalTargetFile = 0;
 			totalFindFile = 0;
-			
-			totalReadFileSize = 0;
-			totalCashFileSize = 0;
 		}
 		
-		public void countupSearchFile(final File file) {
+		void countupSearchFile(final File file) {
 			totalSearchFile ++;
 		}
-		public void countupTargetFile(final File file) {
+		void countupTargetFile(final File file) {
 			totalTargetFile ++;
 		}
-		public void countupFindFile(final File file) {
+		void countupFindFile(final File file) {
 			totalFindFile ++;
 		}
-		
-		public void addTotalReadFileSize(final long size) {
-			totalReadFileSize += size;
-		}
-		public void addTotalCashFileSize(final long size) {
-			totalCashFileSize += size;
-		}
-		
+				
 		public void print() {
 			System.out.println(String.format("SearchFile : %d", totalSearchFile));
 			System.out.println(String.format("TargetFile : %d", totalTargetFile));
 			System.out.println(String.format("FindFile   : %d", totalFindFile));
-			System.out.println(String.format("readSize   : %s", FormatUtility.byteToString(totalReadFileSize)));
-			System.out.println(String.format("cashSize   : %s", FormatUtility.byteToString(totalCashFileSize)));
 		}
 		
 		@Override

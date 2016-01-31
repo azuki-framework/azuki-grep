@@ -15,29 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package org.azkfw.grep.gui;
 
-import org.azkfw.grep.entity.GrepMatchFile;
+import org.azkfw.grep.entity.GrepCondition;
 
 /**
- * 
  * @author Kawakicchi
+ *
  */
-public class GrepAdapter implements GrepListener{
+public interface GrepConditionPanelListener {
 
-	@Override
-	public void grepStart(final GrepEvent e) {
-		
-	}
-
-	@Override
-	public void grepFinished(final GrepEvent e, final GrepResult r) {
-		
-	}
-
-	@Override
-	public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
-		
-	}
-
+	public void grepConditionPanelSearch(final GrepCondition condition) ;
 }

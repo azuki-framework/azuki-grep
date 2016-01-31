@@ -15,31 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
-
 /**
  * @author Kawakicchi
  *
  */
-public class GrepMatch {
-
-	private String word;
-	private int start;
-	private int end;
-	
-	public GrepMatch(final String word, final int start, final int end) {
-		this.word = word;
-		this.start = start;
-		this.end = end;
-	}
-	
-	public String getWord() {
-		return word;
-	}
-	public int getStart() {
-		return start;
-	}
-	public int getEnd() {
-		return end;
-	}
-}
+package org.azkfw.grep.cash;

@@ -17,10 +17,11 @@
  */
 package org.azkfw.grep.gui;
 
-import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -33,25 +34,28 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import javax.xml.bind.JAXB;
+
+import net.arnx.jsonic.JSON;
 
 import org.apache.commons.io.FileUtils;
 import org.azkfw.component.text.TextEditor;
 import org.azkfw.component.text.TextGradationsView;
 import org.azkfw.component.text.TextLineNumberView;
-import org.azkfw.grep.FindFile;
 import org.azkfw.grep.Grep;
-import org.azkfw.grep.GrepCondition;
 import org.azkfw.grep.GrepEvent;
 import org.azkfw.grep.GrepListener;
 import org.azkfw.grep.GrepResult;
-import org.azkfw.grep.gui.FileTree.FindFileObject;
+import org.azkfw.grep.entity.GrepMatchFile;
+import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.gui.FileTree.MatchFileObject;
 
 /**
  * @author Kawakicchi
@@ -81,14 +85,62 @@ public class GrepFrame extends JFrame {
 
 	private JMenuBar menuBar;
 	private JMenu menuFile;
+	private JMenu menuFileExport;
+	private JMenuItem menuFileExportExcel;
+	private JMenuItem menuFileExportXML;
+	private JMenuItem menuFileExportHTML;
+	private JMenuItem menuFileExit;
 
 	private StatusBar statusBar;
 	
 	public GrepFrame() {
 		setTitle("AzukiGrep");
 		setLayout(null);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
+		grep = new Grep();
+		
+		initMenuBar();
+		initStatusBar();
+		initComponent();
+		
+		addListener();
+		
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		Rectangle rt = env.getMaximumWindowBounds();
+		rt.height -= 200;
+		setBounds(rt);
+	}
+	
+	private void initMenuBar() {
+		menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+
+		menuFile = new JMenu("File");
+		menuBar.add(menuFile);
+		
+		menuFileExport = new JMenu("Export");
+		menuFile.add(menuFileExport);
+		
+		menuFileExportExcel = new JMenuItem("Excel");
+		menuFileExport.add(menuFileExportExcel);
+		menuFileExportXML = new JMenuItem("XML");
+		menuFileExport.add(menuFileExportXML);
+		menuFileExportHTML = new JMenuItem("HTML");
+		menuFileExport.add(menuFileExportHTML);
+		
+		menuFile.addSeparator();
+		
+		menuFileExit = new JMenuItem("Exit");
+		menuFile.add(menuFileExit);
+	}
+	
+	private void initStatusBar() {
+		statusBar = new StatusBar();
+		add(statusBar);
+	}
+	
+	private void initComponent() {
 		pnlCondition = new GrepConditionPanel();
 		
 		fileTree = new FileTree();
@@ -102,7 +154,7 @@ public class GrepFrame extends JFrame {
 		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		splSub.setTopComponent(pnlCondition);
 		splSub.setBottomComponent(fileTreeScroll);
-		splSub.setDividerLocation(200);
+		splSub.setDividerLocation(240);
 		//splSub.setBorder(new LineBorder(Color.RED, 2, true));
 		splSub.setBorder(null);
 		
@@ -114,23 +166,14 @@ public class GrepFrame extends JFrame {
 		splMain.setBorder(null);
 
 		add(splMain);
-		
-		statusBar = new StatusBar();
-		add(statusBar);
-		
-		// Menu -------------------------------------
-		menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
-		menuFile = new JMenu("File");
-		menuBar.add(menuFile);
-		// ==========================================
-		
-		grep = new Grep();
+	}
+	
+	private void addListener() {
 		grep.addGrepListener(new GrepListener() {
 			@Override
 			public void grepStart(final GrepEvent e) {
 
-				fileTree.setRootDirectory(e.getSource().getCondition().getTargetDirectory());
+				fileTree.setRootDirectorys(e.getSource().getCondition().getTargetDirectorys());
 			}
 			@Override
 			public void grepFinished(final GrepEvent e, final GrepResult r) {
@@ -142,7 +185,7 @@ public class GrepFrame extends JFrame {
 				fileTree.expandAll();
 			}
 			@Override
-			public void grepFindFile(final GrepEvent e, final FindFile f) {
+			public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
 				String message = String.format("%s", f.getFile().getName());
 				statusBar.setMessage(message);
 				
@@ -167,24 +210,17 @@ public class GrepFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent e) {
-				GrepCondition condition = new GrepCondition();
-				condition.setTargetDirectory(new File("."));
-				//condition.setTargetDirectory(new File("/Users/Kawakicchi/git/azuki-grep"));
-				//condition.setTargetDirectory(new File("/Users/Kawakicchi/iPhone workspace"));
-
-				condition.setFileNamePatterns("????file*.java , *grep*");
-				
-				grep.start(condition);
+				load();
 			}
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				
+				exit();
 			}
 			
 			@Override
 			public void windowClosed(WindowEvent e) {
-				
+				save();
 			}
 		});
 		
@@ -199,11 +235,11 @@ public class GrepFrame extends JFrame {
 						Object obj = path.getLastPathComponent();
 						if (obj instanceof DefaultMutableTreeNode) {
 							Object obj2 = ((DefaultMutableTreeNode) obj).getUserObject();
-							if (obj2 instanceof FindFileObject) {
-								FindFile ff = ((FindFileObject) obj2).getFindFile();
+							if (obj2 instanceof MatchFileObject) {
+								GrepMatchFile matchFile = ((MatchFileObject) obj2).getMatchFile();
 								try {
-									textEditer.setText( FileUtils.readFileToString(ff.getFile(), ff.getCharset()) );
-									textEditer.setCaretPosition(ff.getMatchs().get(0).getStart());
+									textEditer.setText( FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()) );
+									textEditer.setCaretPosition(matchFile.getWords().get(0).getStart());
 								} catch (IOException ex) {
 									ex.printStackTrace();
 								}
@@ -214,9 +250,37 @@ public class GrepFrame extends JFrame {
 			}
 		});
 		
-		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		Rectangle rt = env.getMaximumWindowBounds();
-		rt.height -= 200;
-		setBounds(rt);
+		pnlCondition.addGrepConditionPanelListener(new GrepConditionPanelListener() {
+			@Override
+			public void grepConditionPanelSearch(final GrepCondition condition) {
+				grep.start(condition);
+			}
+		});
+		
+		menuFileExit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exit();
+			}
+		});
 	}
+	
+	private void exit() {
+		dispose();
+	}
+	
+	private void load() {
+		File file = new File("condition.xml");
+		GrepCondition condition = JAXB.unmarshal(file, GrepCondition.class);
+		pnlCondition.setCondition(condition);
+	}
+	
+	private void save() {
+		String str = JSON.encode(pnlCondition.getCondition());
+		System.out.println(str);
+		
+		File file = new File("condition.xml");
+		JAXB.marshal(pnlCondition.getCondition(), file);
+	}
+	
 }

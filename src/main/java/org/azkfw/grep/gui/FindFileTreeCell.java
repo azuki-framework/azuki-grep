@@ -34,7 +34,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.azkfw.grep.gui.FileTree.FindFileObject;
+import org.azkfw.grep.gui.FileTree.MatchFileObject;
 
 /**
  * @author Kawakicchi
@@ -110,7 +110,7 @@ public class FindFileTreeCell  extends JPanel{
 		if (value instanceof DefaultMutableTreeNode) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
 			Object obj = node.getUserObject();
-			if (obj instanceof FindFileObject) {
+			if (obj instanceof MatchFileObject) {
 				// File
 				Matcher m = PTN_MATCH.matcher(txtTitle.getText());
 				if (m.find()) {

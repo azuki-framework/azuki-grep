@@ -15,44 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package org.azkfw.grep.entity;
 
-import java.io.File;
+import javax.xml.bind.annotation.XmlValue;
 
 /**
  * 
  * @author Kawakicchi
  */
-public class CashFile {
+public class ContainingText {
 
-	private File file;
-
-	private String data;
+	private String value;
 	
-	private long length;
-	
-	private String charset;
-	
-	public CashFile(final File file, final String data, final String charset) {
-		this.file = file;
-		this.data = data;
-		this.charset = charset;
-		this.length = file.length();
+	public void setValue(final String value) {
+		this.value = value;
 	}
 	
-	public File getFile() {
-		return file;
-	}
-	
-	public String getSource() {
-		return data;
-	}
-	
-	public long getLength() {
-		return length;
-	}
-	
-	public String getCharset() {
-		return charset;
+	@XmlValue
+	public String getValue() {
+		return value;
 	}
 }

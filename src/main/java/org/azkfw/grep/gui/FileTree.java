@@ -21,6 +21,7 @@ import java.awt.image.ImageProducer;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -28,7 +29,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.azkfw.grep.FindFile;
+import org.azkfw.grep.entity.GrepMatchFile;
 
 /**
  * 
@@ -42,11 +43,10 @@ public class FileTree extends JTree {
 	private DefaultTreeModel model;
 	private DefaultMutableTreeNode root;
 	private TreePath rootPath;
-
-	private File rootDirectory;
 	
 	public FileTree() {		
 		setRowHeight(18);
+		setRootVisible(false);
 		
 		FindFileTreeCellRenderer renderer = new FindFileTreeCellRenderer();
 		URL urlFile = this.getClass().getResource("/org/azkfw/grep/gui/file.png");
@@ -70,28 +70,39 @@ public class FileTree extends JTree {
 		setModel(model);
 	}
 
-	public void setRootDirectory(final File dir) {
-		rootDirectory = dir;
-		
-		root = new DefaultMutableTreeNode(dir.getAbsolutePath());
-		
+	public void setRootDirectorys(final List<File> dirs) {
+		root = new DefaultMutableTreeNode("");
 		model.setRoot(root);
 		rootPath = new TreePath(root);
+		
+		for (File dir : dirs) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(dir.getAbsolutePath());
+			root.add(node);
+		}
 	}
 
-	public void addFile(final FindFile file) {
+	public void addFile(final GrepMatchFile file) {
 		String path = file.getFile().getAbsolutePath();
-		path = path.substring(rootDirectory.getAbsolutePath().length());
-		if (path.startsWith(toString(File.separatorChar))) {
-			path = path.substring(1);
+		
+		for (int i = 0; i < root.getChildCount(); i++) {
+			DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) root.getChildAt(i);
+			String path2 = (String) node2.getUserObject();
+			if ( path.startsWith(path2) ) {
+				path = path.substring(path2.length()) ;
+				if (path.startsWith(toString(File.separatorChar))) {
+					path = path.substring(1);
+				}
+
+				String[] split = path.split(toString(File.separatorChar));
+				
+				add(node2, rootPath.pathByAddingChild(node2), 0, split, file);
+				break;
+			}
 		}
 
-		String[] split = path.split(toString(File.separatorChar));
-		
-		add(root, rootPath, 0, split, file);
 	}
 
-	private void add(final DefaultMutableTreeNode parent, final TreePath path, final int index, final String[] strings, final FindFile file) {
+	private void add(final DefaultMutableTreeNode parent, final TreePath path, final int index, final String[] strings, final GrepMatchFile file) {
 		String name = strings[index];
 
 		DefaultMutableTreeNode nextParent = null;
@@ -110,7 +121,7 @@ public class FileTree extends JTree {
 		
 		if (null == nextParent) {
 			if (strings.length == index + 1) {
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode(new FindFileObject(file));
+				DefaultMutableTreeNode node = new DefaultMutableTreeNode(new MatchFileObject(file));
 				parent.add(node);
 				nextParent = node;
 			} else {
@@ -147,16 +158,20 @@ public class FileTree extends JTree {
 		}
 	}
 	
-	public static class FindFileObject {
-		private FindFile file;
-		public FindFileObject(final FindFile file) {
+	public static class MatchFileObject {
+		
+		private GrepMatchFile file;
+
+		public MatchFileObject(final GrepMatchFile file) {
 			this.file = file;
 		}
-		public FindFile getFindFile() {
+		
+		public GrepMatchFile getMatchFile() {
 			return file;
 		}
+				
 		public String toString() {
-			String s = String.format("%s [%s] (%d matches)", file.getFile().getName(), file.getCharset(), file.getMatchs().size());
+			String s = String.format("%s [%s] (%d matches)", file.getFile().getName(), file.getCharset(), file.getWords().size());
 			return s;
 		}
 	}

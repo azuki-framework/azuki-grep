@@ -15,29 +15,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package org.azkfw.grep.entity;
 
-import org.azkfw.grep.entity.GrepMatchFile;
+import java.io.File;
+import java.util.List;
 
 /**
+ * このクラスは、Grepでマッチしたファイル情報を保持するエンティティクラスです。
  * 
  * @author Kawakicchi
  */
-public class GrepAdapter implements GrepListener{
+public class GrepMatchFile {
 
-	@Override
-	public void grepStart(final GrepEvent e) {
-		
+	private File file;
+
+	private String charset;
+
+	private List<GrepMatchWord> words;
+
+	public GrepMatchFile(final File file, final String charset, final List<GrepMatchWord> words) {
+		this.file = file;
+		this.charset = charset;
+		this.words = words;
 	}
 
-	@Override
-	public void grepFinished(final GrepEvent e, final GrepResult r) {
-		
+	public File getFile() {
+		return file;
 	}
 
-	@Override
-	public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
-		
+	public String getCharset() {
+		return charset;
 	}
 
+	public List<GrepMatchWord> getWords() {
+		return words;
+	}
 }

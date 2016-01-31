@@ -15,35 +15,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package org.azkfw.grep.cash;
 
 import java.io.File;
-import java.util.List;
 
 /**
+ * 
  * @author Kawakicchi
  */
-public class FindFile {
-	
+public class CashFile {
+
 	private File file;
+
+	private String data;
+	
+	private long length;
 	
 	private String charset;
 	
-	private List<GrepMatch> matchs;
-	
-	public FindFile(final File file, final String charset, final List<GrepMatch> matchs) {
+	public CashFile(final File file, final String data, final String charset) {
 		this.file = file;
+		this.data = data;
 		this.charset = charset;
-		this.matchs = matchs;
+		this.length = file.length();
 	}
-
+	
 	public File getFile() {
 		return file;
 	}
+	
+	public String getSource() {
+		return data;
+	}
+	
+	public long getLength() {
+		return length;
+	}
+	
 	public String getCharset() {
 		return charset;
-	}
-	public List<GrepMatch> getMatchs() {
-		return matchs;
 	}
 }

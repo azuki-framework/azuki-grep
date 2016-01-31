@@ -17,6 +17,8 @@
  */
 package org.azkfw.grep;
 
+import org.azkfw.grep.entity.GrepMatchFile;
+
 /**
  * 
  * @author Kawakicchi
@@ -41,5 +43,5 @@ public interface GrepListener {
 	 * @param e イベント
 	 * @param f ファイル情報
 	 */
-	public void grepFindFile(final GrepEvent e, final FindFile f);
+	public void grepFindFile(final GrepEvent e, final GrepMatchFile f);
 }
