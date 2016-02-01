@@ -15,13 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package org.azkfw.grep.entity;
+
+import java.util.regex.Pattern;
+
+import javax.xml.bind.annotation.XmlValue;
 
 /**
+ * 
  * @author Kawakicchi
- *
  */
-public interface GrepStatistics {
+public class DirectoryNamePattern {
 
-	public long getFindFileCount();
+	private String value;
+	
+	public void setValue(final String value) {
+		this.value = value;
+	}
+	
+	@XmlValue
+	public String getValue() {
+		return value;
+	}
+	
+	public Pattern getPattern() {
+		String ptn = value.replaceAll("\\.", "\\\\.");
+		ptn = ptn.replaceAll("\\*", ".*");
+		ptn = ptn.replaceAll("\\?", ".+");
+		ptn = ptn.replaceAll("\\!", "^");
+		return Pattern.compile(ptn, Pattern.CASE_INSENSITIVE);
+	}
 }

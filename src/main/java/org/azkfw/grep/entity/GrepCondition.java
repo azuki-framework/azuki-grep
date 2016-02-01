@@ -35,6 +35,8 @@ public class GrepCondition {
 	private List<FileNamePattern> fileNamePatterns;
 
 	private List<TargetDirectory> targetDirectorys;
+	
+	private List<DirectoryNamePattern> excludeDirectoryNamePatterns;
 
 	/**
 	 * コンストラクタ
@@ -43,6 +45,7 @@ public class GrepCondition {
 		containingTexts = new ArrayList<ContainingText>();
 		fileNamePatterns = new ArrayList<FileNamePattern>();
 		targetDirectorys = new ArrayList<TargetDirectory>();
+		excludeDirectoryNamePatterns = new ArrayList<DirectoryNamePattern>();
 	}
 
 	public void setContainingTexts(final List<ContainingText> containingTexts) {
@@ -84,35 +87,13 @@ public class GrepCondition {
 		return files;
 	}
 
-	//	/**
-//	 * comma
-//	 * @param patterns
-//	 */
-//	public void setFileNamePatterns(final String patterns, final int flags) {
-//		fileNamePatternsPlain = patterns;
-//		fileNamePatterns.clear();
-//		String[] split = patterns.split("[\\s]*,[\\s]*");
-//		for (String str : split) {
-//			String ptn = str.replaceAll("\\.", "\\\\.");
-//			ptn = ptn.replaceAll("\\*", ".*");
-//			ptn = ptn.replaceAll("\\?", ".+");
-//			ptn = ptn.replaceAll("\\!", "^");
-//			fileNamePatterns.add( Pattern.compile(ptn, flags) );
-//		}
-//	}
+	public void setExcludeDirectoryNamePatterns(final List<DirectoryNamePattern> directoryNamePatterns) {
+		this.excludeDirectoryNamePatterns = directoryNamePatterns;
+	}
 
-//	/**
-//	 * Grep対象のディレクトリを複数設定する。
-//	 * @param directorys ディレクトリ（;区切り)
-//	 */
-//	public void setTargetDirectorys(final String directorys) {
-//    	System.out.println("setTargetDirectorys:"+directorys);
-//		targetDirectorysPlain = directorys;
-//		targetDirectorys.clear();
-//		String[] split = directorys.split("[\\s]*;[\\s]*");
-//		for (String str : split) {
-//			File file = new File(str);
-//			targetDirectorys.add( new File(file.getAbsolutePath()) );
-//		}
-//	}
+	@XmlElementWrapper(name="ExcludeDirectoryNamePatterns")
+	@XmlElement(name="ExcludeDirectoryNamePattern")
+	public List<DirectoryNamePattern> getExcludeDirectoryNamePatterns() {
+		return excludeDirectoryNamePatterns;
+	}
 }

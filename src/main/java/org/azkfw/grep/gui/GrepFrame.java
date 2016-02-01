@@ -31,6 +31,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -52,9 +53,9 @@ import org.azkfw.component.text.TextLineNumberView;
 import org.azkfw.grep.Grep;
 import org.azkfw.grep.GrepEvent;
 import org.azkfw.grep.GrepListener;
-import org.azkfw.grep.GrepResult;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
 
 /**
@@ -72,6 +73,7 @@ public class GrepFrame extends JFrame {
 	}
 	
 	private Grep grep;
+	private GrepResult grepResult;
 	
 	private JSplitPane splMain;
 	private JSplitPane splSub;
@@ -122,11 +124,11 @@ public class GrepFrame extends JFrame {
 		menuFileExport = new JMenu("Export");
 		menuFile.add(menuFileExport);
 		
-		menuFileExportExcel = new JMenuItem("Excel");
+		menuFileExportExcel = new JMenuItem("Excel...");
 		menuFileExport.add(menuFileExportExcel);
-		menuFileExportXML = new JMenuItem("XML");
+		menuFileExportXML = new JMenuItem("XML...");
 		menuFileExport.add(menuFileExportXML);
-		menuFileExportHTML = new JMenuItem("HTML");
+		menuFileExportHTML = new JMenuItem("HTML...");
 		menuFileExport.add(menuFileExportHTML);
 		
 		menuFile.addSeparator();
@@ -154,7 +156,7 @@ public class GrepFrame extends JFrame {
 		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		splSub.setTopComponent(pnlCondition);
 		splSub.setBottomComponent(fileTreeScroll);
-		splSub.setDividerLocation(240);
+		splSub.setDividerLocation(290);
 		//splSub.setBorder(new LineBorder(Color.RED, 2, true));
 		splSub.setBorder(null);
 		
@@ -166,6 +168,63 @@ public class GrepFrame extends JFrame {
 		splMain.setBorder(null);
 
 		add(splMain);
+	}
+	
+	private void exit() {
+		dispose();
+	}
+	
+	private void load() {
+		File file = new File("condition.xml");
+		GrepCondition condition = JAXB.unmarshal(file, GrepCondition.class);
+		
+		pnlCondition.setCondition(condition);
+	}
+	
+	private void save() {
+		String str = JSON.encode(pnlCondition.getCondition());
+		System.out.println(str);
+		
+		File file = new File("condition.xml");
+		JAXB.marshal(pnlCondition.getCondition(), file);
+	}
+	
+	private void reportXML(final GrepResult result, final File file) {
+		JAXB.marshal(result, file);
+	}
+	private void reportHTML(final GrepResult result, final File file) {
+		
+	}
+	private void reportExcel(final GrepResult result, final File file) {
+		
+	}
+	
+	private void doReportXML() {
+		JFileChooser filechooser = new JFileChooser();
+		filechooser.setMultiSelectionEnabled(false);
+		filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int selected = filechooser.showSaveDialog(this);
+		if (selected == JFileChooser.APPROVE_OPTION) {
+			reportXML(grepResult, filechooser.getSelectedFile());
+		}
+	}
+	private void doReportHTML() {
+		JFileChooser filechooser = new JFileChooser();
+		filechooser.setMultiSelectionEnabled(false);
+		filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int selected = filechooser.showSaveDialog(this);
+		if (selected == JFileChooser.APPROVE_OPTION) {
+			reportHTML(grepResult, filechooser.getSelectedFile());
+		}
+	}
+	private void doReportExcel() {
+		JFileChooser filechooser = new JFileChooser();
+		filechooser.setMultiSelectionEnabled(false);
+		filechooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int selected = filechooser.showSaveDialog(this);
+		if (selected == JFileChooser.APPROVE_OPTION) {
+			reportExcel(grepResult, filechooser.getSelectedFile());
+		}
 	}
 	
 	private void addListener() {
@@ -186,6 +245,8 @@ public class GrepFrame extends JFrame {
 				fileTree.expandAll();
 
 				statusBar.setProgress(100);
+				
+				grepResult = r;
 			}
 			@Override
 			public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
@@ -260,6 +321,25 @@ public class GrepFrame extends JFrame {
 			}
 		});
 		
+		menuFileExportExcel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doReportExcel();
+			}
+		});
+		menuFileExportHTML.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doReportHTML();
+			}
+		});
+		menuFileExportXML.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doReportXML();
+			}
+		});
+		
 		menuFileExit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -267,24 +347,5 @@ public class GrepFrame extends JFrame {
 			}
 		});
 	}
-	
-	private void exit() {
-		dispose();
-	}
-	
-	private void load() {
-		File file = new File("condition.xml");
-		GrepCondition condition = JAXB.unmarshal(file, GrepCondition.class);
 		
-		pnlCondition.setCondition(condition);
-	}
-	
-	private void save() {
-		String str = JSON.encode(pnlCondition.getCondition());
-		System.out.println(str);
-		
-		File file = new File("condition.xml");
-		JAXB.marshal(pnlCondition.getCondition(), file);
-	}
-	
 }

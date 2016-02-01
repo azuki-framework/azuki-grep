@@ -17,22 +17,11 @@
  */
 package org.azkfw.grep.entity;
 
-import javax.xml.bind.annotation.XmlValue;
-
 /**
- * 
  * @author Kawakicchi
+ *
  */
-public class ExcludeDirectory {
+public interface GrepStatistics {
 
-	private String value;
-	
-	public void setValue(final String value) {
-		this.value = value;
-	}
-	
-	@XmlValue
-	public String getValue() {
-		return value;
-	}
+	public long getFindFileCount();
 }

@@ -17,11 +17,16 @@
  */
 package org.azkfw.grep.entity;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlValue;
+
 /**
  * このクラスは、Grepでマッチしたワード情報を保持するエンティティクラスです。
  * 
  * @author Kawakicchi
  */
+@XmlType(propOrder={"start", "end"})
 public class GrepMatchWord {
 
 	/** ワード */
@@ -43,6 +48,7 @@ public class GrepMatchWord {
 		this.word = word;
 	}
 
+	@XmlValue
 	public String getWord() {
 		return word;
 	}
@@ -51,6 +57,7 @@ public class GrepMatchWord {
 		this.start = start;
 	}
 
+	@XmlAttribute(name="start")
 	public int getStart() {
 		return start;
 	}
@@ -59,6 +66,7 @@ public class GrepMatchWord {
 		this.end = end;
 	}
 
+	@XmlAttribute(name="end")
 	public int getEnd() {
 		return end;
 	}

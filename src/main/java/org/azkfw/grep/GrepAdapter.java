@@ -18,6 +18,7 @@
 package org.azkfw.grep;
 
 import org.azkfw.grep.entity.GrepMatchFile;
+import org.azkfw.grep.entity.GrepResult;
 
 /**
  * 

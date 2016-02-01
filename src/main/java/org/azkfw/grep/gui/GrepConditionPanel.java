@@ -41,6 +41,7 @@ import javax.swing.JTextField;
 import javax.swing.TransferHandler;
 
 import org.azkfw.grep.entity.ContainingText;
+import org.azkfw.grep.entity.DirectoryNamePattern;
 import org.azkfw.grep.entity.FileNamePattern;
 import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.TargetDirectory;
@@ -68,6 +69,9 @@ public class GrepConditionPanel extends JPanel {
 	private JLabel lblTargetDirectorys;
 	private JTextField txtTargetDirectorys;
 	private JButton btnTargetDirectorys;
+
+	private JLabel lblExcludeDirectoryNamePatterns;
+	private JTextField txtExcludeDirectoryNamePatterns;
 
 	private JButton btnSearch;
 
@@ -117,6 +121,15 @@ public class GrepConditionPanel extends JPanel {
 		add(btnTargetDirectorys);
 		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
 
+		lblExcludeDirectoryNamePatterns = new JLabel("Exclude directory name patterns (separated by comma):");
+		lblExcludeDirectoryNamePatterns.setLocation(x, y);
+		add(lblExcludeDirectoryNamePatterns);
+		y += COMPONENT_HEIGHT;
+		txtExcludeDirectoryNamePatterns = new JTextField("");
+		txtExcludeDirectoryNamePatterns.setLocation(x, y);
+		add(txtExcludeDirectoryNamePatterns);
+		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
+
 		btnSearch = new JButton("Search");
 		btnSearch.setLocation(x, y);
 		btnSearch.setSize(80, COMPONENT_HEIGHT);
@@ -162,6 +175,16 @@ public class GrepConditionPanel extends JPanel {
 			strTargetDirectorys.append(directory.getValue());
 		}
 		txtTargetDirectorys.setText(strTargetDirectorys.toString());
+		
+		List<DirectoryNamePattern> excludeDirectoryNamePatterns = condition.getExcludeDirectoryNamePatterns();
+		StringBuffer strExcludeDirectoryNamaePatterns = new StringBuffer();
+		for (DirectoryNamePattern pattern : excludeDirectoryNamePatterns) {
+			if (0 < strExcludeDirectoryNamaePatterns.length()) {
+				strExcludeDirectoryNamaePatterns.append(", ");
+			}
+			strExcludeDirectoryNamaePatterns.append(pattern.getValue());
+		}
+		txtExcludeDirectoryNamePatterns.setText(strExcludeDirectoryNamaePatterns.toString());
 	}
 	
 	public GrepCondition getCondition() {
@@ -200,6 +223,15 @@ public class GrepConditionPanel extends JPanel {
 		}
 		condition.setTargetDirectorys(targetDirectorys);
 
+		List<DirectoryNamePattern> excludeDirectoryNamePatterns = new ArrayList<DirectoryNamePattern>();
+		split = txtExcludeDirectoryNamePatterns.getText().split("[\\s]*,[\\s]*");
+		for (String s : split) {
+			DirectoryNamePattern directoryNamePattern = new DirectoryNamePattern();
+			directoryNamePattern.setValue(s);
+			excludeDirectoryNamePatterns.add(directoryNamePattern);
+		}
+		condition.setExcludeDirectoryNamePatterns(excludeDirectoryNamePatterns);
+		
 		return condition;
 	}
 	
@@ -262,6 +294,9 @@ public class GrepConditionPanel extends JPanel {
 				txtTargetDirectorys.setSize(width - (COMPONENT_MARGIN * 2) - 40, COMPONENT_HEIGHT);
 				btnTargetDirectorys.setLocation(width - (40 + COMPONENT_MARGIN), txtTargetDirectorys.getY());
 
+				lblExcludeDirectoryNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+				txtExcludeDirectoryNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+
 				btnSearch.setLocation(width - (80 + COMPONENT_MARGIN), btnSearch.getY());
 			}
 		});
@@ -284,6 +319,7 @@ public class GrepConditionPanel extends JPanel {
 		txtContainingText3.addKeyListener(textFieldSearchKeyListener);
 		txtFileNamePatterns.addKeyListener(textFieldSearchKeyListener);
 		txtTargetDirectorys.addKeyListener(textFieldSearchKeyListener);
+		txtExcludeDirectoryNamePatterns.addKeyListener(textFieldSearchKeyListener);
 
 		txtTargetDirectorys.setTransferHandler(new TransferHandler() {
 

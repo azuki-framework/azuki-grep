@@ -20,6 +20,7 @@ package org.azkfw.grep;
 import java.io.File;
 import java.util.List;
 
+import org.azkfw.grep.entity.DirectoryNamePattern;
 import org.azkfw.grep.entity.FileNamePattern;
 import org.azkfw.grep.entity.GrepCondition;
 
@@ -52,14 +53,13 @@ public class GrepScanner implements Runnable {
 		grep.searchFile(file);
 		
 		String name = file.getName();
-		List<FileNamePattern> ptns = condition.getFileNamePatterns();
-
-		if ( 0 == ptns.size() ) {
+		List<FileNamePattern> includes = condition.getFileNamePatterns();
+		if ( 0 == includes.size() ) {
 			grep.offerFile(file);
 		} else {
-			for (FileNamePattern ptn : ptns) {
+			for (FileNamePattern include : includes) {
 				// TODO: 毎回パターンコンパイルしている非効率
-				if (ptn.getPattern().matcher(name).matches()) {
+				if (include.getPattern().matcher(name).matches()) {
 					grep.offerFile(file);
 					break;
 				}
@@ -69,6 +69,16 @@ public class GrepScanner implements Runnable {
 	}
 
 	private boolean doDirectory(final File directory) {
+		String name = directory.getName();
+		
+		List<DirectoryNamePattern> excludes = condition.getExcludeDirectoryNamePatterns();
+		for (DirectoryNamePattern exclude : excludes) {
+			// TODO: 毎回パターンコンパイルしている非効率
+			if (exclude.getPattern().matcher(name).matches()) {
+				return false;
+			}
+		}		
+		
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			if (file.isFile()) {

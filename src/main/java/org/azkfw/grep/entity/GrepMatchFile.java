@@ -20,6 +20,9 @@ package org.azkfw.grep.entity;
 import java.io.File;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+
 /**
  * このクラスは、Grepでマッチしたファイル情報を保持するエンティティクラスです。
  * 
@@ -42,11 +45,19 @@ public class GrepMatchFile {
 	public File getFile() {
 		return file;
 	}
+	
+	@XmlElement(name="Path")
+	public String getPath() {
+		return file.getAbsolutePath();
+	}
 
+	@XmlElement(name="Charset")
 	public String getCharset() {
 		return charset;
 	}
 
+	@XmlElementWrapper(name="GrepMatchWords")
+	@XmlElement(name="GrepMatchWord")
 	public List<GrepMatchWord> getWords() {
 		return words;
 	}

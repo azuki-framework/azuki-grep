@@ -15,7 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package org.azkfw.grep.entity;
+
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 
 /**
  * @author Kawakicchi
@@ -23,10 +28,13 @@ package org.azkfw.grep;
  */
 public class GrepResult {
 
-	public long processingNanoTime;
+	private long processingNanoTime;
+	
+	private List<GrepMatchFile> matchFiles;
 	
 	public GrepResult() {
-		
+		processingNanoTime = -1;
+		matchFiles = null;
 	}
 	
 	public void setProcessingNanoTime(final long nanoTime) {
@@ -35,6 +43,16 @@ public class GrepResult {
 	
 	public long getProcessingNanoTime() {
 		return processingNanoTime;
+	}
+	
+	public void setMatchFiles(final List<GrepMatchFile> files) {
+		matchFiles = files;
+	}
+	
+	@XmlElementWrapper(name="GrepMatchFiles")
+	@XmlElement(name="GrepMatchFile")
+	public List<GrepMatchFile> getMatchFiles() {
+		return matchFiles;
 	}
 	
 }

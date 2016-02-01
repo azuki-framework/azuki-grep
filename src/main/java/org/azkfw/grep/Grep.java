@@ -26,6 +26,8 @@ import java.util.Queue;
 import org.azkfw.grep.cash.CashStore;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.entity.GrepResult;
+import org.azkfw.grep.entity.GrepStatistics;
 
 /**
  * 
@@ -44,6 +46,8 @@ public class Grep {
 	private BaseGrepStatistics statistics;
 	
 	private CashStore store;
+	
+	private List<GrepMatchFile> matchFiles;
 
 	public Grep() {
 		event = new GrepEvent(this);
@@ -54,6 +58,8 @@ public class Grep {
 
 		statistics = new BaseGrepStatistics();
 		store = new CashStore();
+		
+		matchFiles = new ArrayList<GrepMatchFile>();
 	}
 	
 	public GrepStatistics getStatistics() {
@@ -82,6 +88,8 @@ public class Grep {
 				Thread thread = new Thread(new Runnable() {
 					@Override
 					public void run() {
+						matchFiles.clear();
+						
 						// call listener start
 						synchronized (listeners) {
 							for (GrepListener listener : listeners) {
@@ -99,6 +107,7 @@ public class Grep {
 
 						GrepResult result = new GrepResult();
 						result.setProcessingNanoTime(endNanoTime - startNanoTime);
+						result.setMatchFiles(matchFiles);
 
 						// call listener finished
 						synchronized (listeners) {
@@ -187,13 +196,14 @@ public class Grep {
 		return file;
 	}
 	
-	void findFile(final GrepMatchFile file) {
+	void findFile(final GrepMatchFile matchFile) {
 		// call listener finished
 		synchronized (listeners) {
-			statistics.countupFindFile(file.getFile());
-
+			matchFiles.add(matchFile);
+			statistics.countupFindFile(matchFile.getFile());
+			
 			for (GrepListener listener : listeners) {
-				listener.grepFindFile(event, file);
+				listener.grepFindFile(event, matchFile);
 			}
 		}
 	}
