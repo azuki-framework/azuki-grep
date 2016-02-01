@@ -23,6 +23,7 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 /**
  * @author Kawakicchi
@@ -34,6 +35,7 @@ public class StatusBar extends JPanel{
 	private static final long serialVersionUID = 737315155756183060L;
 
 	private JLabel label;
+	private JProgressBar progress;
 	
 	public StatusBar() {
 		setLayout(null);
@@ -41,6 +43,9 @@ public class StatusBar extends JPanel{
 		label = new JLabel();
 		label.setLocation(0, 0);
 		add(label);
+		
+		progress = new JProgressBar();
+		add(progress);
 		
 		addComponentListener(new ComponentListener() {
 			@Override
@@ -62,12 +67,22 @@ public class StatusBar extends JPanel{
 	public void setMessage(final String message) {
 		label.setText(message);
 	}
-	
+
+	public void setProgress(final int percent) {
+		if (0 > percent) {
+			progress.setIndeterminate(true);
+		} else {
+			progress.setIndeterminate(false);
+			progress.setValue(percent);
+		}
+	}
+
 	private void resize() {
 		Insets insets = getInsets();
 		int width = getWidth() - (insets.left + insets.right);
 		int height = getHeight() - (insets.top + insets.bottom);
 		
-		label.setSize(width, height);
+		label.setSize(width-160, height);
+		progress.setBounds(width-200-4, 2, 200, height-4);
 	}
 }

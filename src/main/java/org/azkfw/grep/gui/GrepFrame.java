@@ -173,7 +173,8 @@ public class GrepFrame extends JFrame {
 			@Override
 			public void grepStart(final GrepEvent e) {
 
-				fileTree.setRootDirectorys(e.getSource().getCondition().getTargetDirectorys());
+				statusBar.setProgress(-1);
+				fileTree.setRootDirectorys(e.getSource().getCondition().getTargetDirectoryFiles());
 			}
 			@Override
 			public void grepFinished(final GrepEvent e, final GrepResult r) {
@@ -183,6 +184,8 @@ public class GrepFrame extends JFrame {
 				System.out.println(String.format("%.2f sec", (double) (r.getProcessingNanoTime()) / 1000000000.f));
 
 				fileTree.expandAll();
+
+				statusBar.setProgress(100);
 			}
 			@Override
 			public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
@@ -272,6 +275,7 @@ public class GrepFrame extends JFrame {
 	private void load() {
 		File file = new File("condition.xml");
 		GrepCondition condition = JAXB.unmarshal(file, GrepCondition.class);
+		
 		pnlCondition.setCondition(condition);
 	}
 	

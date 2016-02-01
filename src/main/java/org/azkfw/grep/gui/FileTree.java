@@ -83,13 +83,13 @@ public class FileTree extends JTree {
 
 	public void addFile(final GrepMatchFile file) {
 		String path = file.getFile().getAbsolutePath();
-		
 		for (int i = 0; i < root.getChildCount(); i++) {
 			DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) root.getChildAt(i);
 			String path2 = (String) node2.getUserObject();
 			if ( path.startsWith(path2) ) {
 				path = path.substring(path2.length()) ;
-				if (path.startsWith(toString(File.separatorChar))) {
+
+				if (path.startsWith(Character.toString(File.separatorChar))) {
 					path = path.substring(1);
 				}
 

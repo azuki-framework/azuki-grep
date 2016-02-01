@@ -41,7 +41,9 @@ import javax.swing.JTextField;
 import javax.swing.TransferHandler;
 
 import org.azkfw.grep.entity.ContainingText;
+import org.azkfw.grep.entity.FileNamePattern;
 import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.entity.TargetDirectory;
 
 /**
  * @author Kawakicchi
@@ -130,7 +132,6 @@ public class GrepConditionPanel extends JPanel {
 	}
 	
 	public void setCondition(final GrepCondition condition) {
-		
 		List<ContainingText> texts = condition.getContainingTexts();
 		if (0 < texts.size()) {
 			txtContainingText1.setText(texts.get(0).getValue());
@@ -141,10 +142,26 @@ public class GrepConditionPanel extends JPanel {
 		if (2 < texts.size()) {
 			txtContainingText3.setText(texts.get(2).getValue());
 		}
-		
-		txtFileNamePatterns.setText(condition.getFileNamePatternsToString());
-		txtTargetDirectorys.setText(condition.getTargetDirectorysToString());
-		
+
+		List<FileNamePattern> fileNamePatterns = condition.getFileNamePatterns();
+		StringBuffer strFileNamePatterns = new StringBuffer();
+		for (FileNamePattern pattern : fileNamePatterns) {
+			if (0 < strFileNamePatterns.length()) {
+				strFileNamePatterns.append(", ");
+			}
+			strFileNamePatterns.append(pattern.getValue());
+		}
+		txtFileNamePatterns.setText(strFileNamePatterns.toString());
+
+		List<TargetDirectory> targetDirectorys = condition.getTargetDirectorys();
+		StringBuffer strTargetDirectorys = new StringBuffer();
+		for (TargetDirectory directory : targetDirectorys) {
+			if (0 < strTargetDirectorys.length()) {
+				strTargetDirectorys.append("; ");
+			}
+			strTargetDirectorys.append(directory.getValue());
+		}
+		txtTargetDirectorys.setText(strTargetDirectorys.toString());
 	}
 	
 	public GrepCondition getCondition() {
@@ -160,10 +177,28 @@ public class GrepConditionPanel extends JPanel {
 		containingTexts.add(containingText1);
 		containingTexts.add(containingText2);
 		containingTexts.add(containingText3);
- 
 		condition.setContainingTexts(containingTexts);
-		condition.setFileNamePatterns(txtFileNamePatterns.getText());
-		condition.setTargetDirectorys(txtTargetDirectorys.getText());
+
+		
+		String[] split = null;
+		
+		List<FileNamePattern> fileNamePatterns = new ArrayList<FileNamePattern>();
+		split = txtFileNamePatterns.getText().split("[\\s]*,[\\s]*");
+		for (String s : split) {
+			FileNamePattern fileNamePattern = new FileNamePattern();
+			fileNamePattern.setValue(s);
+			fileNamePatterns.add(fileNamePattern);
+		}
+		condition.setFileNamePatterns(fileNamePatterns);
+		
+		List<TargetDirectory> targetDirectorys = new ArrayList<TargetDirectory>();
+		split = txtTargetDirectorys.getText().split("[\\s]*;[\\s]*");
+		for (String s : split) {
+			TargetDirectory targetDirectory = new TargetDirectory();
+			targetDirectory.setValue(s);
+			targetDirectorys.add(targetDirectory);
+		}
+		condition.setTargetDirectorys(targetDirectorys);
 
 		return condition;
 	}
@@ -188,7 +223,7 @@ public class GrepConditionPanel extends JPanel {
 			StringBuffer s = new StringBuffer();
 			for (File file : files) {
 				if (0 < s.length()) {
-					s.append(";");
+					s.append("; ");
 				}
 				s.append(file.getAbsolutePath());
 			}
@@ -280,11 +315,19 @@ public class GrepConditionPanel extends JPanel {
 					StringBuffer fileList = new StringBuffer();
 					for (File file : files) {
 						if (0 < fileList.length()) {
-							fileList.append(";");
+							fileList.append("; ");
 						}
 						fileList.append(file.getAbsolutePath());
 					}
-					txtTargetDirectorys.setText(fileList.toString());
+
+					String old = txtTargetDirectorys.getText().trim();
+					if (0 < old.length() && !old.endsWith(";")) {
+						old += "; ";
+					}
+					
+					String add = old + fileList.toString();
+					
+					txtTargetDirectorys.setText(add);
 				} catch (UnsupportedFlavorException | IOException ex) {
 					ex.printStackTrace();
 				}

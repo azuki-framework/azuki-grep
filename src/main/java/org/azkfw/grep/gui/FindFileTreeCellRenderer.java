@@ -19,10 +19,6 @@ package org.azkfw.grep.gui;
 
 import java.awt.Component;
 import java.awt.Image;
-import java.awt.image.ImageProducer;
-import java.io.IOException;
-import java.net.URL;
-import java.util.regex.Matcher;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;

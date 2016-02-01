@@ -19,8 +19,8 @@ package org.azkfw.grep;
 
 import java.io.File;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import org.azkfw.grep.entity.FileNamePattern;
 import org.azkfw.grep.entity.GrepCondition;
 
 /**
@@ -38,7 +38,7 @@ public class GrepScanner implements Runnable {
 	}
 
 	public void run() {
-		List<File> files = condition.getTargetDirectorys();
+		List<File> files = condition.getTargetDirectoryFiles();
 		for (File file : files) {
 			if (file.isFile()) {
 				doFile(file);
@@ -52,12 +52,14 @@ public class GrepScanner implements Runnable {
 		grep.searchFile(file);
 		
 		String name = file.getName();
-		List<Pattern> ptns = condition.getFileNamePatterns();
+		List<FileNamePattern> ptns = condition.getFileNamePatterns();
+
 		if ( 0 == ptns.size() ) {
 			grep.offerFile(file);
 		} else {
-			for (Pattern ptn : ptns) {
-				if (ptn.matcher(name).matches()) {
+			for (FileNamePattern ptn : ptns) {
+				// TODO: 毎回パターンコンパイルしている非効率
+				if (ptn.getPattern().matcher(name).matches()) {
 					grep.offerFile(file);
 					break;
 				}

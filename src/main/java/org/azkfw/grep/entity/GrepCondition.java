@@ -20,7 +20,6 @@ package org.azkfw.grep.entity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -33,92 +32,87 @@ public class GrepCondition {
 	
 	private List<ContainingText> containingTexts;
 
-	private String fileNamePatternsPlain;
-	private List<Pattern> fileNamePatterns;
-	
-	private String targetDirectorysPlain;
-	private List<File> targetDirectorys;
-	
+	private List<FileNamePattern> fileNamePatterns;
+
+	private List<TargetDirectory> targetDirectorys;
+
 	/**
 	 * コンストラクタ
 	 */
 	public GrepCondition() {
 		containingTexts = new ArrayList<ContainingText>();
-		fileNamePatternsPlain = null;
-		fileNamePatterns = new ArrayList<Pattern>();
-		targetDirectorys = new ArrayList<File>();
+		fileNamePatterns = new ArrayList<FileNamePattern>();
+		targetDirectorys = new ArrayList<TargetDirectory>();
 	}
-	
+
 	public void setContainingTexts(final List<ContainingText> containingTexts) {
     	this.containingTexts = containingTexts;
     }
 
-    @XmlElementWrapper(name="ContainingTexts")
-    @XmlElement(name="ContainingText")
+	@XmlElementWrapper(name="ContainingTexts")
+	@XmlElement(name="ContainingText")
 	public List<ContainingText> getContainingTexts() {
 		return containingTexts;
 	}
     
-	/**
-	 * comma
-	 * @param patterns
-	 */
-	public void setFileNamePatterns(final String patterns) {
-    	System.out.println("setFileNamePatterns:"+patterns);
-		setFileNamePatterns(patterns, Pattern.CASE_INSENSITIVE);
+	public void setFileNamePatterns(final List<FileNamePattern> fileNamePatterns) {
+		this.fileNamePatterns = fileNamePatterns;
 	}
-	
-	/**
-	 * comma
-	 * @param patterns
-	 */
-	public void setFileNamePatterns(final String patterns, final int flags) {
-		fileNamePatternsPlain = patterns;
-		fileNamePatterns.clear();
-		String[] split = patterns.split("[\\s]*,[\\s]*");
-		for (String str : split) {
-			String ptn = str.replaceAll("\\.", "\\\\.");
-			ptn = ptn.replaceAll("\\*", ".*");
-			ptn = ptn.replaceAll("\\?", ".+");
-			ptn = ptn.replaceAll("\\!", "^");
-			fileNamePatterns.add( Pattern.compile(ptn, flags) );
-		}
-	}
-	
-	public List<Pattern> getFileNamePatterns() {
+
+	@XmlElementWrapper(name="FileNamePatterns")
+	@XmlElement(name="FileNamePattern")
+	public List<FileNamePattern> getFileNamePatterns() {
 		return fileNamePatterns;
 	}
-    
-    @XmlElement(name="FileNamePatterns")
-    public String getFileNamePatternsToString() {
-    	return fileNamePatternsPlain;
-    }
-	
-	/**
-	 * Grep対象のディレクトリを複数設定する。
-	 * @param directorys ディレクトリ（;区切り)
-	 */
-	public void setTargetDirectorys(final String directorys) {
-    	System.out.println("setTargetDirectorys:"+directorys);
-		targetDirectorysPlain = directorys;
-		targetDirectorys.clear();
-		String[] split = directorys.split("[\\s]*;[\\s]*");
-		for (String str : split) {
-			File file = new File(str);
-			targetDirectorys.add( new File(file.getAbsolutePath()) );
-		}
+
+	public void setTargetDirectorys(final List<TargetDirectory> targetDirectorys) {
+		this.targetDirectorys = targetDirectorys;
 	}
-	
-	/**
-	 * Grep対象のディレクトリを取得する。
-	 * @return
-	 */
-	public List<File> getTargetDirectorys() {
+
+	@XmlElementWrapper(name="TargetDirectorys")
+	@XmlElement(name="TargetDirectory")
+	public List<TargetDirectory> getTargetDirectorys() {
 		return targetDirectorys;
 	}
 
-    @XmlElement(name="TargetDirectorys")
-    public String getTargetDirectorysToString() {
-    	return targetDirectorysPlain;
-    }
+	public List<File> getTargetDirectoryFiles() {
+		List<File> files = new ArrayList<File>();
+		for (TargetDirectory directory : targetDirectorys) {
+			File file = new File(directory.getValue());
+			files.add(new File(file.getAbsolutePath()));
+		}
+		return files;
+	}
+
+	//	/**
+//	 * comma
+//	 * @param patterns
+//	 */
+//	public void setFileNamePatterns(final String patterns, final int flags) {
+//		fileNamePatternsPlain = patterns;
+//		fileNamePatterns.clear();
+//		String[] split = patterns.split("[\\s]*,[\\s]*");
+//		for (String str : split) {
+//			String ptn = str.replaceAll("\\.", "\\\\.");
+//			ptn = ptn.replaceAll("\\*", ".*");
+//			ptn = ptn.replaceAll("\\?", ".+");
+//			ptn = ptn.replaceAll("\\!", "^");
+//			fileNamePatterns.add( Pattern.compile(ptn, flags) );
+//		}
+//	}
+
+//	/**
+//	 * Grep対象のディレクトリを複数設定する。
+//	 * @param directorys ディレクトリ（;区切り)
+//	 */
+//	public void setTargetDirectorys(final String directorys) {
+//    	System.out.println("setTargetDirectorys:"+directorys);
+//		targetDirectorysPlain = directorys;
+//		targetDirectorys.clear();
+//		String[] split = directorys.split("[\\s]*;[\\s]*");
+//		for (String str : split) {
+//			File file = new File(str);
+//			targetDirectorys.add( new File(file.getAbsolutePath()) );
+//		}
+//	}
 }
