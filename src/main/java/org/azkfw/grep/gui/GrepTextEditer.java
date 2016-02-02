@@ -31,27 +31,11 @@ public class GrepTextEditer extends TextEditor {
 
 	}
 	
-	public void addHighlighter(final Pattern pattern) {
-		HighlightPainter pointer = new DefaultHighlightPainter(Color.yellow);
-		try {
-			Highlighter highlighter = getHighlighter();
-			Document doc = getDocument();
-			String text = doc.getText(0, doc.getLength());
-			Matcher matcher = pattern.matcher(text);
-			int pos = 0;
-			while (matcher.find(pos)) {
-				pos = matcher.end();
-				highlighter.addHighlight(matcher.start(), pos, pointer);
-			}
-		} catch (BadLocationException e) {
-		  e.printStackTrace();
-		}
-	}
-
 	public void addHighlighter(final List<? extends DocumentPosition> positions) {
 		HighlightPainter pointer = new DefaultHighlightPainter(Color.yellow);
 		try {
 			Highlighter highlighter = getHighlighter();
+			highlighter.removeAllHighlights();
 			for (DocumentPosition pos : positions) {
 				highlighter.addHighlight(pos.getStart(), pos.getEnd(), pointer);
 			}

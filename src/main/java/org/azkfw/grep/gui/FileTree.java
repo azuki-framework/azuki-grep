@@ -171,7 +171,7 @@ public class FileTree extends JTree {
 		}
 				
 		public String toString() {
-			String s = String.format("%s [%s] (%d matches)", file.getFile().getName(), file.getCharset(), file.getWords().size());
+			String s = String.format("%s (%d matches)", file.getFile().getName(), file.getWords().size());
 			return s;
 		}
 	}

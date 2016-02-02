@@ -30,7 +30,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -41,7 +40,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.bind.JAXB;
@@ -54,7 +52,6 @@ import org.azkfw.component.text.TextLineNumberView;
 import org.azkfw.grep.Grep;
 import org.azkfw.grep.GrepEvent;
 import org.azkfw.grep.GrepListener;
-import org.azkfw.grep.entity.DocumentPosition;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.GrepResult;
@@ -94,6 +91,8 @@ public class GrepFrame extends JFrame {
 	private JMenuItem menuFileExportXML;
 	private JMenuItem menuFileExportHTML;
 	private JMenuItem menuFileExit;
+	private JMenu menuHelp;
+	private JMenuItem menuHelpVersion;
 
 	private StatusBar statusBar;
 	
@@ -137,6 +136,12 @@ public class GrepFrame extends JFrame {
 		
 		menuFileExit = new JMenuItem("Exit");
 		menuFile.add(menuFileExit);
+		
+		menuHelp = new JMenu("Help");
+		menuBar.add(menuHelp);
+		
+		menuHelpVersion = new JMenuItem("Version");
+		menuHelp.add(menuHelpVersion);
 	}
 	
 	private void initStatusBar() {
@@ -153,7 +158,7 @@ public class GrepFrame extends JFrame {
 		textEditer = new GrepTextEditer();
 		textEditerScroll = new JScrollPane(textEditer);
 		textEditerScroll.setColumnHeaderView(new TextGradationsView(textEditer));
-		textEditerScroll.setRowHeaderView(new TextLineNumberView(textEditer));
+		textEditerScroll.setRowHeaderView(new GrepTextLineNumberView(textEditer, textEditerScroll.getVerticalScrollBar()));
 		
 		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		splSub.setTopComponent(pnlCondition);
