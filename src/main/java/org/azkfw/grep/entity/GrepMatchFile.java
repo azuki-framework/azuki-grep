@@ -34,11 +34,14 @@ public class GrepMatchFile {
 
 	private String charset;
 
+	private String lineSeparator;
+
 	private List<GrepMatchWord> words;
 
-	public GrepMatchFile(final File file, final String charset, final List<GrepMatchWord> words) {
+	public GrepMatchFile(final File file, final String charset, final String lineSeparator, final List<GrepMatchWord> words) {
 		this.file = file;
 		this.charset = charset;
+		this.lineSeparator = lineSeparator;
 		this.words = words;
 	}
 
@@ -56,8 +59,24 @@ public class GrepMatchFile {
 		return charset;
 	}
 
-	@XmlElementWrapper(name="GrepMatchWords")
-	@XmlElement(name="GrepMatchWord")
+	public String getLineSeparator() {
+		return lineSeparator;
+	}
+
+	@XmlElement(name="LineSeparator")
+	public String getLineSeparatorToString() {
+		if (null == lineSeparator) {
+			return "";
+		} else if ("\r\n".equals(lineSeparator)) {
+			return "CR+LF";
+		} else if ("\n".equals(lineSeparator)) {
+			return "LF";
+		}
+		return "";
+	}
+
+	@XmlElementWrapper(name="MatchWords")
+	@XmlElement(name="MatchWord")
 	public List<GrepMatchWord> getWords() {
 		return words;
 	}

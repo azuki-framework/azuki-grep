@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,6 +67,43 @@ public class GrepSearcher implements Runnable {
 		}
 	}
 
+	private static final Pattern PTN_RETURN = Pattern.compile("\\r\\n|\\n");
+	private static final Pattern PTN_RETURN_CRLF = Pattern.compile("\\r\\n");
+	private static final Pattern PTN_RETURN_LF = Pattern.compile("[^\\r]\\n");
+
+	public static void main(final String[] args) {
+		String s = "\naa\r\nbb\ncc";
+		
+		if (PTN_RETURN_CRLF.matcher(s).find()) {
+			System.out.println("CRLF");
+		}
+		if (PTN_RETURN_LF.matcher(s).find()) {
+			System.out.println("LF");
+		}
+		
+		Matcher m = PTN_RETURN.matcher(s);
+		while (m.find()) {
+			System.out.println(m.start());
+		}
+	}
+
+	private String getLineSeparator(final String source) {
+		String lineSeparator = null;
+		if (PTN_RETURN_CRLF.matcher(source).find()) {
+			// System.out.println("CRLF");
+			lineSeparator = "\r\n";
+		}
+		if (PTN_RETURN_LF.matcher(source).find()) {
+			// System.out.println("LF");
+			if (null == lineSeparator) {
+				lineSeparator = "\n";
+			} else {
+				lineSeparator = null;
+			}
+		}
+		return lineSeparator;
+	}
+
 	private void search(final File file) {
 		try {
 
@@ -82,17 +121,23 @@ public class GrepSearcher implements Runnable {
 			}
 
 			// ----------------------------------------------------
+			String source = cashFile.getSource();
+
+			// 改行コード取得
+			String lineSeparator = getLineSeparator(source);
+
 			boolean matchFlag = true;
+			int patternIndex = 1;
 			List<GrepMatchWord> matchWords = new ArrayList<GrepMatchWord>();
 			List<ContainingText> containingTexts = condition.getContainingTexts();
 			for (ContainingText containingText : containingTexts) {
-				String value = containingText.getValue();
-				if (null != value && 0 < value.length()) {
+				Pattern pattern = containingText.getPattern();
+				if (null != pattern) {
 					boolean find = false;
-					Matcher m = Pattern.compile(value, Pattern.CASE_INSENSITIVE).matcher(cashFile.getSource());
+					Matcher m = pattern.matcher(source);
 					while (m.find()) {
-						String word = cashFile.getSource().substring(m.start(), m.end());
-						GrepMatchWord matchWord = new GrepMatchWord(word, m.start(), m.end());
+						String word = source.substring(m.start(), m.end());
+						GrepMatchWord matchWord = new GrepMatchWord(patternIndex, word, m.start(), m.end());
 						matchWords.add(matchWord);
 						find = true;
 					}
@@ -101,13 +146,40 @@ public class GrepSearcher implements Runnable {
 						break;
 					}
 				}
+				patternIndex ++;
+			}
+
+			Collections.sort(matchWords, new Comparator<GrepMatchWord>() {
+				@Override
+				public int compare(GrepMatchWord o1, GrepMatchWord o2) {
+					return o1.getStart() - o2.getStart();
+				}
+			});
+
+			Matcher m = PTN_RETURN.matcher(source);
+			int line = 1;
+			int index = 0;
+			while (m.find()) {
+				int start = m.start();
+				for (int i = index ; i < matchWords.size() ; i++) {
+					GrepMatchWord w = matchWords.get(i);
+					if (w.getStart() < start) {
+						w.setLine(line);
+						index ++;
+					} else {
+						break;
+					}
+				}
+				line ++;
+			}
+			for (int i = index ; i < matchWords.size() ; i++) {
+				matchWords.get(i).setLine(line);
 			}
 
 			if (matchFlag) {
-				GrepMatchFile matchFile = new GrepMatchFile(file, cashFile.getCharset(), matchWords);
+				GrepMatchFile matchFile = new GrepMatchFile(file, cashFile.getCharset(), lineSeparator, matchWords);
 				grep.findFile(matchFile);
 			}
-
 			// ----------------------------------------------------
 
 			store.push(cashFile);

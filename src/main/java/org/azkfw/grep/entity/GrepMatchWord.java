@@ -26,11 +26,15 @@ import javax.xml.bind.annotation.XmlValue;
  * 
  * @author Kawakicchi
  */
-@XmlType(propOrder={"start", "end"})
-public class GrepMatchWord {
+@XmlType(propOrder={"line", "start", "end", "pattern"})
+public class GrepMatchWord implements DocumentPosition{
+
+	private int pattern;
 
 	/** ワード */
 	private String word;
+
+	private int line;
 
 	/** 開始位置 */
 	private int start;
@@ -38,10 +42,21 @@ public class GrepMatchWord {
 	/** 終了位置 */
 	private int end;
 
-	public GrepMatchWord(final String word, final int start, final int end) {
+	public GrepMatchWord(final int pattern, final String word, final int start, final int end) {
+		this.pattern = pattern;
 		this.word = word;
+		this.line = 0;
 		this.start = start;
 		this.end = end;
+	}
+
+	public void setPattern(final int pattern) {
+		this.pattern = pattern;
+	}
+
+	@XmlAttribute(name="pattern")
+	public int getPattern() {
+		return pattern;
 	}
 
 	public void setWord(final String word) {
@@ -53,10 +68,20 @@ public class GrepMatchWord {
 		return word;
 	}
 
+	public void setLine(final int line) {
+		this.line = line;
+	}
+
+	@XmlAttribute(name="line")
+	public int getLine() {
+		return line;
+	}
+
 	public void setStart(final int start) {
 		this.start = start;
 	}
 
+	@Override
 	@XmlAttribute(name="start")
 	public int getStart() {
 		return start;
@@ -66,6 +91,7 @@ public class GrepMatchWord {
 		this.end = end;
 	}
 
+	@Override
 	@XmlAttribute(name="end")
 	public int getEnd() {
 		return end;

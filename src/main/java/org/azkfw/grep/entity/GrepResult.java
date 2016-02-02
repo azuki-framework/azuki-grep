@@ -49,8 +49,8 @@ public class GrepResult {
 		matchFiles = files;
 	}
 	
-	@XmlElementWrapper(name="GrepMatchFiles")
-	@XmlElement(name="GrepMatchFile")
+	@XmlElementWrapper(name="MatchFiles")
+	@XmlElement(name="MatchFile")
 	public List<GrepMatchFile> getMatchFiles() {
 		return matchFiles;
 	}

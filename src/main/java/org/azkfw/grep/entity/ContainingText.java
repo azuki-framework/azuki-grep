@@ -17,6 +17,8 @@
  */
 package org.azkfw.grep.entity;
 
+import java.util.regex.Pattern;
+
 import javax.xml.bind.annotation.XmlValue;
 
 /**
@@ -34,5 +36,13 @@ public class ContainingText {
 	@XmlValue
 	public String getValue() {
 		return value;
+	}
+	
+	public Pattern getPattern() {
+		Pattern pattern = null;
+		if (null != value && 0 < value.length()) {
+			pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
+		}
+		return pattern;
 	}
 }
