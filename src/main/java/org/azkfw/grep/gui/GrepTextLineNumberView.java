@@ -138,14 +138,14 @@ public class GrepTextLineNumberView extends JComponent {
 		      thumbRect.height = range.getExtent();
 		      thumbRect.y = range.getValue();
 		      Rectangle s = at.createTransformedShape(thumbRect).getBounds();
-		      System.out.println(String.format("%d %d", s.y, s.height));
+		      //System.out.println(String.format("%d %d", s.y, s.height));
 		      g.setColor(THUMB_COLOR);
 		      g.fillRect(x2, y2 + itop + s.y, 8, s.height);
 		 }
 
 		// -----
 	    //paint Highlight
-	    g.setColor(Color.YELLOW);
+	    g.setColor(Color.BLUE);
 	    try {
 	      for (Highlighter.Highlight hh: highlighter.getHighlights()) {
 	        Rectangle r = textArea.modelToView(hh.getStartOffset());

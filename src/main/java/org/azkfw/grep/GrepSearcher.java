@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -177,7 +178,7 @@ public class GrepSearcher implements Runnable {
 			}
 
 			if (matchFlag) {
-				GrepMatchFile matchFile = new GrepMatchFile(file, cashFile.getCharset(), lineSeparator, matchWords);
+				GrepMatchFile matchFile = new GrepMatchFile(file, file.length(), new Date(file.lastModified()), cashFile.getCharset(), lineSeparator, matchWords);
 				grep.findFile(matchFile);
 			}
 			// ----------------------------------------------------

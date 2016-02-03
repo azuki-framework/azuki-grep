@@ -18,6 +18,7 @@
 package org.azkfw.grep.entity;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -32,14 +33,20 @@ public class GrepMatchFile {
 
 	private File file;
 
+	private long length;
+	
+	private Date lastModifiedDate;
+
 	private String charset;
 
 	private String lineSeparator;
 
 	private List<GrepMatchWord> words;
 
-	public GrepMatchFile(final File file, final String charset, final String lineSeparator, final List<GrepMatchWord> words) {
+	public GrepMatchFile(final File file, final long length, final Date lastModifiedDate, final String charset, final String lineSeparator, final List<GrepMatchWord> words) {
 		this.file = file;
+		this.length = length;
+		this.lastModifiedDate = lastModifiedDate;
 		this.charset = charset;
 		this.lineSeparator = lineSeparator;
 		this.words = words;
@@ -52,6 +59,15 @@ public class GrepMatchFile {
 	@XmlElement(name="Path")
 	public String getPath() {
 		return file.getAbsolutePath();
+	}
+	
+	@XmlElement(name="Length")
+	public long getLength() {
+		return length;
+	}
+
+	public Date getLastModifedDate() {
+		return lastModifiedDate;
 	}
 
 	@XmlElement(name="Charset")

@@ -319,6 +319,7 @@ public class GrepFrame extends JFrame {
 									textEditer.setCaretPosition(0);
 									// textEditer.setCaretPosition(matchFile.getWords().get(0).getStart());
 
+									statusBar.setSize(matchFile.getLength());
 									statusBar.setLineSeparator(matchFile.getLineSeparatorToString());
 									statusBar.setCharset(matchFile.getCharset());
 

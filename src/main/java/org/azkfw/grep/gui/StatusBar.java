@@ -35,6 +35,7 @@ public class StatusBar extends JPanel{
 	private static final long serialVersionUID = 737315155756183060L;
 
 	private JLabel label;
+	private JLabel lblSize;
 	private JLabel lblLineSeparator;
 	private JLabel lblCharset;
 	private JProgressBar progress;
@@ -48,6 +49,10 @@ public class StatusBar extends JPanel{
 
 		lblLineSeparator = new JLabel();
 		add(lblLineSeparator);
+
+		lblSize = new JLabel();
+		lblSize.setHorizontalAlignment(JLabel.RIGHT);
+		add(lblSize);
 
 		lblCharset = new JLabel();
 		add(lblCharset);
@@ -85,6 +90,9 @@ public class StatusBar extends JPanel{
 		}
 	}
 
+	public void setSize(final long size) {
+		lblSize.setText(String.format("%d byte", size));
+	}
 	public void setLineSeparator(final String lineSeparator) {
 		lblLineSeparator.setText(lineSeparator);
 	}
@@ -99,6 +107,7 @@ public class StatusBar extends JPanel{
 
 		label.setSize(width-160, height);
 
+		lblSize.setBounds(width - (80 + 60 + 60 + 160 + 4), 0, 80, height);
 		lblLineSeparator.setBounds(width - (60 + 60 + 160 + 4), 0, 60, height);
 		lblCharset.setBounds(width - (60 + 160 + 4), 0, 60, height);
 
