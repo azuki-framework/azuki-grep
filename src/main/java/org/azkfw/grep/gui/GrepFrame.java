@@ -54,8 +54,10 @@ import org.azkfw.grep.GrepEvent;
 import org.azkfw.grep.GrepListener;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.entity.GrepMatchWord;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
+import org.azkfw.grep.gui.FileTree.MatchLineObject;
 
 /**
  * @author Kawakicchi
@@ -301,34 +303,27 @@ public class GrepFrame extends JFrame {
 				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
 					JTree tree = (JTree) e.getSource();
 					TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-
 					if (null != path) {
-						Object obj = path.getLastPathComponent();
-						if (obj instanceof DefaultMutableTreeNode) {
-							Object obj2 = ((DefaultMutableTreeNode) obj).getUserObject();
+						
+						Object node = path.getLastPathComponent();
+						if (node instanceof DefaultMutableTreeNode) {
+							Object obj2 = ((DefaultMutableTreeNode) node).getUserObject();
 							if (obj2 instanceof MatchFileObject) {
 								GrepMatchFile matchFile = ((MatchFileObject) obj2).getMatchFile();
-								try {
-									textEditer.setText( FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()) );
 
-									// XXX: 
-									textEditer.addHighlighter(matchFile.getWords());
-									//textEditer.addHighlighter(grep.getCondition().getContainingTexts().get(0).getPattern());
-
-									// XXX: 
-									textEditer.setCaretPosition(0);
-									// textEditer.setCaretPosition(matchFile.getWords().get(0).getStart());
-
-									statusBar.setSize(matchFile.getLength());
-									statusBar.setLineSeparator(matchFile.getLineSeparatorToString());
-									statusBar.setCharset(matchFile.getCharset());
-
-								} catch (IOException ex) {
-									ex.printStackTrace();
-								}
+								setEdit(matchFile, null);
+							} else if (obj2 instanceof MatchLineObject) {
+								GrepMatchWord matchWord = ((MatchLineObject) obj2).getMatchWord();
+								
+								DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)((DefaultMutableTreeNode) node).getParent();
+								GrepMatchFile matchFile = ((MatchFileObject)parentNode.getUserObject()).getMatchFile();
+								
+								setEdit(matchFile, matchWord);
 							}
 						}
+						
 					}
+					e.consume();
 				}
 			}
 		});
@@ -367,4 +362,27 @@ public class GrepFrame extends JFrame {
 		});
 	}
 		
+	private void setEdit(final GrepMatchFile matchFile, final GrepMatchWord matchWord) {
+		try {
+			textEditer.setText( FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()) );
+
+			// XXX: 
+			textEditer.addHighlighter(matchFile.getWords());
+			//textEditer.addHighlighter(grep.getCondition().getContainingTexts().get(0).getPattern());
+
+			// XXX: 
+			if (null == matchWord) {
+				textEditer.setCaretPosition(0);
+			} else {
+				textEditer.setCaretPosition(matchWord.getvirtualStart());
+			}
+
+			statusBar.setSize(matchFile.getLength());
+			statusBar.setLineSeparator(matchFile.getLineSeparatorToString());
+			statusBar.setCharset(matchFile.getCharset());
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
 }

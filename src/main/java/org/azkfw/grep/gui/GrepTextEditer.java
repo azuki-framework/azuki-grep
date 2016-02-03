@@ -14,6 +14,8 @@ import javax.swing.text.Highlighter.HighlightPainter;
 
 import org.azkfw.component.text.TextEditor;
 import org.azkfw.grep.entity.DocumentPosition;
+import org.azkfw.grep.entity.GrepMatchFile;
+import org.azkfw.grep.entity.GrepMatchWord;
 
 public class GrepTextEditer extends TextEditor {
 
@@ -22,22 +24,22 @@ public class GrepTextEditer extends TextEditor {
 
 	public GrepTextEditer() {
 		if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-			Font font = new Font("ＭＳ ゴシック", Font.PLAIN, 13);
+			Font font = new Font("ＭＳ ゴシック", Font.PLAIN, 14);
 			setFont(font);
 		} else {
-			Font font = new Font(Font.MONOSPACED, Font.PLAIN, 13);
+			Font font = new Font(Font.MONOSPACED, Font.PLAIN, 14);
 			setFont(font);
 		}
 
 	}
 	
-	public void addHighlighter(final List<? extends DocumentPosition> positions) {
+	public void addHighlighter(final List<GrepMatchWord> words) {
 		HighlightPainter pointer = new DefaultHighlightPainter(Color.yellow);
 		try {
 			Highlighter highlighter = getHighlighter();
 			highlighter.removeAllHighlights();
-			for (DocumentPosition pos : positions) {
-				highlighter.addHighlight(pos.getStart(), pos.getEnd(), pointer);
+			for (GrepMatchWord word : words) {
+				highlighter.addHighlight(word.getvirtualStart(), word.getVirtualEnd(), pointer);
 			}
 		} catch (BadLocationException e) {
 		  e.printStackTrace();

@@ -30,6 +30,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.azkfw.grep.entity.GrepMatchFile;
+import org.azkfw.grep.entity.GrepMatchWord;
 
 /**
  * 
@@ -124,6 +125,11 @@ public class FileTree extends JTree {
 				DefaultMutableTreeNode node = new DefaultMutableTreeNode(new MatchFileObject(file));
 				parent.add(node);
 				nextParent = node;
+				
+				for (GrepMatchWord word: file.getWords()) {
+					DefaultMutableTreeNode node2 = new DefaultMutableTreeNode(new MatchLineObject(word));
+					node.add(node2);
+				}
 			} else {
 				DefaultMutableTreeNode node = new DefaultMutableTreeNode(name);
 				parent.add(node);
@@ -153,8 +159,11 @@ public class FileTree extends JTree {
 	private void expand(final TreeNode parent, final TreePath path) {
 		expandPath(path);
 		for (int i = 0; i < parent.getChildCount(); i++) {
-			TreeNode node = parent.getChildAt(i);
-			expand(node, path.pathByAddingChild(node));
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode)parent.getChildAt(i);
+			Object obj = node.getUserObject();
+			if (obj instanceof String) {
+				expand(node, path.pathByAddingChild(node));
+			}
 		}
 	}
 	
@@ -172,6 +181,24 @@ public class FileTree extends JTree {
 				
 		public String toString() {
 			String s = String.format("%s (%d matches)", file.getFile().getName(), file.getWords().size());
+			return s;
+		}
+	}
+	
+	public static class MatchLineObject {
+		
+		private GrepMatchWord word;
+
+		public MatchLineObject(final GrepMatchWord word) {
+			this.word = word;
+		}
+		
+		public GrepMatchWord getMatchWord() {
+			return word;
+		}
+				
+		public String toString() {
+			String s = String.format("%d : %s", word.getLine(), word.getLineString());
 			return s;
 		}
 	}

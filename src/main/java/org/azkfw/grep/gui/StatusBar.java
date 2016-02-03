@@ -48,6 +48,7 @@ public class StatusBar extends JPanel{
 		add(label);
 
 		lblLineSeparator = new JLabel();
+		lblLineSeparator.setHorizontalAlignment(JLabel.CENTER);
 		add(lblLineSeparator);
 
 		lblSize = new JLabel();
@@ -55,6 +56,7 @@ public class StatusBar extends JPanel{
 		add(lblSize);
 
 		lblCharset = new JLabel();
+		lblCharset.setHorizontalAlignment(JLabel.CENTER);
 		add(lblCharset);
 
 		progress = new JProgressBar();
@@ -107,7 +109,7 @@ public class StatusBar extends JPanel{
 
 		label.setSize(width-160, height);
 
-		lblSize.setBounds(width - (80 + 60 + 60 + 160 + 4), 0, 80, height);
+		lblSize.setBounds(width - (100 + 60 + 60 + 160 + 4), 0, 100, height);
 		lblLineSeparator.setBounds(width - (60 + 60 + 160 + 4), 0, 60, height);
 		lblCharset.setBounds(width - (60 + 160 + 4), 0, 60, height);
 

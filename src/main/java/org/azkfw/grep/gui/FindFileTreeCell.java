@@ -19,8 +19,10 @@ package org.azkfw.grep.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Image;
+import java.awt.Insets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.azkfw.component.text.NoWrapEditorKit;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
 
 /**
@@ -60,6 +63,15 @@ public class FindFileTreeCell  extends JPanel{
 
 	public FindFileTreeCell(final Object value) {
 		setLayout(null);
+		
+		String text = value.toString();
+
+		Font font;
+		if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+			font = new Font("ＭＳ ゴシック", Font.PLAIN, 12);
+		} else {
+			font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+		}
 	
 		atrDefault = new SimpleAttributeSet();
 		StyleConstants.setForeground(atrDefault, new Color(20, 20, 20));
@@ -74,37 +86,19 @@ public class FindFileTreeCell  extends JPanel{
 		add(lblIcon);
 		
 		txtTitle = new JTextPane();
+		txtTitle.setFont(font);
+		txtTitle.setEditorKit(new NoWrapEditorKit());
 		//txtTitle.setBackground(Color.red);
-
-		txtTitle.setBounds(iconSize, 0, 200, 20);
-
 		txtTitle.setOpaque(false);
 		txtTitle.setBorder(BorderFactory.createEmptyBorder());
 		txtTitle.setForeground(Color.BLACK);
 		//txtTitle.setBackground(Color.WHITE);
 		txtTitle.setEditable(false);
-
 		add(txtTitle);
 		
-		setPreferredSize(new Dimension(iconSize + 200, 20));
+		txtTitle.setText(text);
 		
-		/*
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				Insets insets = getInsets();
-				int width = getWidth() - (insets.left + insets.right);
-				int height = getHeight() - (insets.top + insets.bottom);
-				txtTitle.setLocation(iconSize, 0);
-				txtTitle.setSize(width-iconSize, height);
-			}
-		});
-		*/
-		
-		//Insets insets = txtTitle.getInsets();
-		txtTitle.setText(value.toString());
 		int length = txtTitle.getDocument().getLength();
-
 		txtTitle.getStyledDocument().setCharacterAttributes(0, length, atrDefault, true);
 		
 		if (value instanceof DefaultMutableTreeNode) {
@@ -120,18 +114,21 @@ public class FindFileTreeCell  extends JPanel{
 		}
 
 		FontMetrics fm = txtTitle.getFontMetrics(txtTitle.getFont());
-		int width = fm.stringWidth(value.toString());
+		int width = fm.stringWidth(text);
 		// System.out.println(value.toString() + " " + width);
 		
 		lblIcon.setLocation(0, 0);
 		lblIcon.setSize(iconSize, iconSize);
 		
 		txtTitle.setLocation(iconSize,  0);
-		txtTitle.setSize(width, 20);
 
-		Dimension dm = new Dimension(width + iconSize, 20);
-		setSize(dm);
-		setPreferredSize(dm);
+		Dimension dm1 = new Dimension(width, 20);
+		txtTitle.setSize(dm1);
+		txtTitle.setPreferredSize(dm1);
+
+		Dimension dm2 = new Dimension(width + iconSize, 20);
+		setSize(dm2);
+		setPreferredSize(dm2);
 	}
 	
 	public void setImage(final Image image) {

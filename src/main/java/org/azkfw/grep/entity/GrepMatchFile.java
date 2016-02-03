@@ -87,6 +87,8 @@ public class GrepMatchFile {
 			return "CR+LF";
 		} else if ("\n".equals(lineSeparator)) {
 			return "LF";
+		} else if ("\r".equals(lineSeparator)) {
+			return "CR";
 		}
 		return "";
 	}

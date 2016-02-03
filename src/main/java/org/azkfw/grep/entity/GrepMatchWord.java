@@ -34,20 +34,27 @@ public class GrepMatchWord implements DocumentPosition{
 	/** ワード */
 	private String word;
 
-	private int line;
+	private int lineNo;
+	private String lineString;
 
 	/** 開始位置 */
 	private int start;
 
 	/** 終了位置 */
 	private int end;
+	
+	private int virtualStart;
+	private int virtualEnd;
 
-	public GrepMatchWord(final int pattern, final String word, final int start, final int end) {
+	public GrepMatchWord(final int pattern, final String word, final int start, final int end, final int virtualStart, final int virtualEnd) {
 		this.pattern = pattern;
 		this.word = word;
-		this.line = 0;
+		this.lineNo = 0;
+		this.lineString = null;
 		this.start = start;
 		this.end = end;
+		this.virtualStart = virtualStart;
+		this.virtualEnd = virtualEnd;
 	}
 
 	public void setPattern(final int pattern) {
@@ -68,13 +75,17 @@ public class GrepMatchWord implements DocumentPosition{
 		return word;
 	}
 
-	public void setLine(final int line) {
-		this.line = line;
+	public void setLine(final int no, final String  string) {
+		this.lineNo = no;
+		this.lineString = string;
 	}
 
 	@XmlAttribute(name="line")
 	public int getLine() {
-		return line;
+		return lineNo;
+	}
+	public String getLineString() {
+		return lineString;
 	}
 
 	public void setStart(final int start) {
@@ -95,5 +106,12 @@ public class GrepMatchWord implements DocumentPosition{
 	@XmlAttribute(name="end")
 	public int getEnd() {
 		return end;
+	}
+	
+	public int getvirtualStart() {
+		return virtualStart;
+	}
+	public int getVirtualEnd() {
+		return virtualEnd;
 	}
 }
