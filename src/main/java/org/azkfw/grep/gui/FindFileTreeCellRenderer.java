@@ -25,6 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
+import org.azkfw.grep.gui.FileTree.MatchLineObject;
 
 /**
  * @author Kawakicchi
@@ -61,6 +62,8 @@ public class FindFileTreeCellRenderer implements TreeCellRenderer{
 			Object obj = node.getUserObject();
 			if (obj instanceof MatchFileObject) {
 				cell.setImage(imgFile);
+			} else if (obj instanceof MatchLineObject) {
+				
 			} else if (obj instanceof String) {
 				// String
 				cell.setImage(imgFolder);

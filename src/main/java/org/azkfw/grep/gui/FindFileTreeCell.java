@@ -22,7 +22,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Image;
-import java.awt.Insets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,7 +71,7 @@ public class FindFileTreeCell  extends JPanel{
 		} else {
 			font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 		}
-	
+
 		atrDefault = new SimpleAttributeSet();
 		StyleConstants.setForeground(atrDefault, new Color(20, 20, 20));
 		atrMatch = new SimpleAttributeSet();
@@ -84,7 +83,7 @@ public class FindFileTreeCell  extends JPanel{
 		lblIcon.setSize(iconSize, iconSize);
 		lblIcon.setBackground(Color.blue);
 		add(lblIcon);
-		
+
 		txtTitle = new JTextPane();
 		txtTitle.setFont(font);
 		txtTitle.setEditorKit(new NoWrapEditorKit());
@@ -95,9 +94,9 @@ public class FindFileTreeCell  extends JPanel{
 		//txtTitle.setBackground(Color.WHITE);
 		txtTitle.setEditable(false);
 		add(txtTitle);
-		
+
 		txtTitle.setText(text);
-		
+
 		int length = txtTitle.getDocument().getLength();
 		txtTitle.getStyledDocument().setCharacterAttributes(0, length, atrDefault, true);
 		
@@ -116,7 +115,7 @@ public class FindFileTreeCell  extends JPanel{
 		FontMetrics fm = txtTitle.getFontMetrics(txtTitle.getFont());
 		int width = fm.stringWidth(text);
 		// System.out.println(value.toString() + " " + width);
-		
+
 		lblIcon.setLocation(0, 0);
 		lblIcon.setSize(iconSize, iconSize);
 		
