@@ -24,12 +24,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -335,6 +338,22 @@ public class GrepFrame extends JFrame {
 			}
 		});
 		
+		textEditer.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getModifiers() == KeyEvent.CTRL_MASK && e.getKeyCode() == KeyEvent.VK_M){
+
+					String text = textEditer.getSelectedText();
+					if (0 < text.length()) {
+						textEditer.addMark(text);
+					}
+
+					e.consume();
+				}
+				// repaint();
+			}
+		});
+		
 		menuFileExportExcel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -364,17 +383,17 @@ public class GrepFrame extends JFrame {
 		
 	private void setEdit(final GrepMatchFile matchFile, final GrepMatchWord matchWord) {
 		try {
+			textEditer.clearHighlighter();
 			textEditer.setText( FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()) );
 
 			// XXX: 
 			textEditer.addHighlighter(matchFile.getWords());
-			//textEditer.addHighlighter(grep.getCondition().getContainingTexts().get(0).getPattern());
 
 			// XXX: 
 			if (null == matchWord) {
 				textEditer.setCaretPosition(0);
 			} else {
-				textEditer.setCaretPosition(matchWord.getvirtualStart());
+				textEditer.setCaretPosition(matchWord.getVirtualStart());
 			}
 
 			statusBar.setSize(matchFile.getLength());

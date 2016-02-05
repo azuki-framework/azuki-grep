@@ -33,16 +33,37 @@ public class GrepTextEditer extends TextEditor {
 
 	}
 	
+	public void clearHighlighter() {
+		Highlighter highlighter = getHighlighter();
+		highlighter.removeAllHighlights();
+	}
+
 	public void addHighlighter(final List<GrepMatchWord> words) {
 		HighlightPainter pointer = new DefaultHighlightPainter(Color.yellow);
+		Highlighter highlighter = getHighlighter();
 		try {
-			Highlighter highlighter = getHighlighter();
-			highlighter.removeAllHighlights();
 			for (GrepMatchWord word : words) {
-				highlighter.addHighlight(word.getvirtualStart(), word.getVirtualEnd(), pointer);
+				highlighter.addHighlight(word.getVirtualStart(), word.getVirtualEnd(), pointer);
 			}
 		} catch (BadLocationException e) {
-		  e.printStackTrace();
+			e.printStackTrace();
 		}
+	}
+
+	public void addMark(final String string) {
+		Pattern ptn = Pattern.compile(string);
+		
+		HighlightPainter pointer = new DefaultHighlightPainter(Color.cyan);
+		Highlighter highlighter = getHighlighter();
+		try {
+			String s = getDocument().getText(0, getDocument().getLength());
+			Matcher m = ptn.matcher(s);
+			while (m.find()) {
+				highlighter.addHighlight(m.start(), m.end(), pointer);
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+
 	}
 }

@@ -52,6 +52,7 @@ public class FileTree extends JTree {
 		FindFileTreeCellRenderer renderer = new FindFileTreeCellRenderer();
 		URL urlFile = this.getClass().getResource("/org/azkfw/grep/gui/file.png");
 		URL urlFolder = this.getClass().getResource("/org/azkfw/grep/gui/folder.png");
+		URL urlArrow = this.getClass().getResource("/org/azkfw/grep/gui/arrow.png");
 		try {
 			renderer.setFileImage( createImage((ImageProducer)urlFile.getContent()) );
 		} catch (IOException ex) {
@@ -59,6 +60,11 @@ public class FileTree extends JTree {
 		}
 		try {
 			renderer.setFolderImage( createImage((ImageProducer)urlFolder.getContent()) );
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		try {
+			renderer.setArrowImage( createImage((ImageProducer)urlArrow.getContent()) );
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -198,7 +204,7 @@ public class FileTree extends JTree {
 		}
 				
 		public String toString() {
-			String s = String.format("%d : %s", word.getLine(), word.getLineString());
+			String s = String.format("%d: %s", word.getLine(), word.getLineString());
 			return s;
 		}
 	}

@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.azkfw.component.text.NoWrapEditorKit;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
+import org.azkfw.grep.gui.FileTree.MatchLineObject;
 
 /**
  * @author Kawakicchi
@@ -47,6 +48,7 @@ public class FindFileTreeCell  extends JPanel{
 	/** serialVersionUID */
 	private static final long serialVersionUID = 433998392285167422L;
 
+	private Pattern PTN_LINE = Pattern.compile("^[0-9]+:");
 	private Pattern PTN_MATCH = Pattern.compile("\\([0-9]+ matches\\)");
 	
 	private ImageIcon icon;
@@ -57,8 +59,9 @@ public class FindFileTreeCell  extends JPanel{
 	
 	private MutableAttributeSet atrDefault;
 	private MutableAttributeSet atrMatch;
+	private MutableAttributeSet atrLine;
 	
-	private int iconSize = 20;
+	private int iconSize = 18;
 
 	public FindFileTreeCell(final Object value) {
 		setLayout(null);
@@ -76,6 +79,8 @@ public class FindFileTreeCell  extends JPanel{
 		StyleConstants.setForeground(atrDefault, new Color(20, 20, 20));
 		atrMatch = new SimpleAttributeSet();
 		StyleConstants.setForeground(atrMatch, new Color(40,40,200));
+		atrLine = new SimpleAttributeSet();
+		StyleConstants.setForeground(atrLine, new Color(128, 128, 128));
 
 		icon = new ImageIcon();
 		lblIcon = new JLabel(icon);
@@ -109,6 +114,12 @@ public class FindFileTreeCell  extends JPanel{
 				if (m.find()) {
 					txtTitle.getStyledDocument().setCharacterAttributes(m.start(), m.end(), atrMatch, true);
 				}
+			} else if (obj instanceof MatchLineObject) {
+				// line 
+				Matcher m = PTN_LINE.matcher(txtTitle.getText());
+				if (m.find()) {
+					txtTitle.getStyledDocument().setCharacterAttributes(m.start(), m.end(), atrLine, true);
+				}
 			}
 		}
 
@@ -121,11 +132,11 @@ public class FindFileTreeCell  extends JPanel{
 		
 		txtTitle.setLocation(iconSize,  0);
 
-		Dimension dm1 = new Dimension(width, 20);
+		Dimension dm1 = new Dimension(width, iconSize);
 		txtTitle.setSize(dm1);
 		txtTitle.setPreferredSize(dm1);
 
-		Dimension dm2 = new Dimension(width + iconSize, 20);
+		Dimension dm2 = new Dimension(width + iconSize, iconSize);
 		setSize(dm2);
 		setPreferredSize(dm2);
 	}

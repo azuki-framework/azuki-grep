@@ -108,7 +108,7 @@ public class GrepMatchWord implements DocumentPosition{
 		return end;
 	}
 	
-	public int getvirtualStart() {
+	public int getVirtualStart() {
 		return virtualStart;
 	}
 	public int getVirtualEnd() {

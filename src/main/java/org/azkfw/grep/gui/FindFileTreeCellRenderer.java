@@ -37,6 +37,8 @@ public class FindFileTreeCellRenderer implements TreeCellRenderer{
 
 	private Image imgFolder;
 
+	private Image imgArrow;
+
 	/**
 	 * 
 	 */
@@ -49,6 +51,10 @@ public class FindFileTreeCellRenderer implements TreeCellRenderer{
 	
 	public void setFolderImage(final Image image) {
 		imgFolder = image;
+	}
+	
+	public void setArrowImage(final Image image) {
+		imgArrow = image;
 	}
 
 	@Override
@@ -63,9 +69,8 @@ public class FindFileTreeCellRenderer implements TreeCellRenderer{
 			if (obj instanceof MatchFileObject) {
 				cell.setImage(imgFile);
 			} else if (obj instanceof MatchLineObject) {
-				
+				cell.setImage(imgArrow);
 			} else if (obj instanceof String) {
-				// String
 				cell.setImage(imgFolder);
 			}
 		}
