@@ -51,9 +51,13 @@ public class GrepTextEditer extends TextEditor {
 	}
 
 	public void addMark(final String string) {
+		addMark(string, Color.cyan);
+	}
+	
+	public void addMark(final String string, final Color color) {
 		Pattern ptn = Pattern.compile(string);
 		
-		HighlightPainter pointer = new DefaultHighlightPainter(Color.cyan);
+		HighlightPainter pointer = new DefaultHighlightPainter(color);
 		Highlighter highlighter = getHighlighter();
 		try {
 			String s = getDocument().getText(0, getDocument().getLength());

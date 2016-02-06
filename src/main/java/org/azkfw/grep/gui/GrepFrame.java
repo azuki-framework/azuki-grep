@@ -17,6 +17,7 @@
  */
 package org.azkfw.grep.gui;
 
+import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -389,6 +390,10 @@ public class GrepFrame extends JFrame {
 			// XXX: 
 			textEditer.addHighlighter(matchFile.getWords());
 
+			if (0 < pnlCondition.getMarkingText().length()) {
+				textEditer.addMark(pnlCondition.getMarkingText(), Color.pink);
+			}
+			
 			// XXX: 
 			if (null == matchWord) {
 				textEditer.setCaretPosition(0);

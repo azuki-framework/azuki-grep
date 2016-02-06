@@ -37,6 +37,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
@@ -145,13 +146,15 @@ public class GrepTextLineNumberView extends JComponent {
 
 		// -----
 	    //paint Highlight
-	    g.setColor(Color.BLUE);
 	    try {
 	      for (Highlighter.Highlight hh: highlighter.getHighlights()) {
-	        Rectangle r = textArea.modelToView(hh.getStartOffset());
-	        Rectangle s = at.createTransformedShape(r).getBounds();
-	        int h = Math.max(1, (int)(Math.ceil((double)(fontAscent + fontDescent + fontLeading) * sy)));
-	        g.fillRect(x2, y2 + itop + s.y, 8, h);
+	    	  DefaultHighlightPainter pointer = (DefaultHighlightPainter)hh.getPainter();
+
+	  	    g.setColor(pointer.getColor());
+	    	  Rectangle r = textArea.modelToView(hh.getStartOffset());
+	    	  Rectangle s = at.createTransformedShape(r).getBounds();
+	    	  int h = Math.max(1, (int)(Math.ceil((double)(fontAscent + fontDescent + fontLeading) * sy)));
+	    	  g.fillRect(x2, y2 + itop + s.y, 8, h);
 	      }
 	    } catch (BadLocationException e) {
 	      e.printStackTrace();

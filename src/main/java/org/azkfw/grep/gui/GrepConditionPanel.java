@@ -62,6 +62,9 @@ public class GrepConditionPanel extends JPanel {
 	private JTextField txtContainingText1;
 	private JTextField txtContainingText2;
 	private JTextField txtContainingText3;
+	
+	private JLabel lblMarkingText;
+	private JTextField txtMarkingText;
 
 	private JLabel lblFileNamePatterns;
 	private JTextField txtFileNamePatterns;
@@ -98,6 +101,15 @@ public class GrepConditionPanel extends JPanel {
 		txtContainingText3 = new JTextField("");
 		txtContainingText3.setLocation(x, y);
 		add(txtContainingText3);
+		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
+		
+		lblMarkingText = new JLabel("Marking text:");
+		lblMarkingText.setLocation(x, y);
+		add(lblMarkingText);
+		y += COMPONENT_HEIGHT;
+		txtMarkingText = new JTextField("");
+		txtMarkingText.setLocation(x, y);
+		add(txtMarkingText);
 		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
 
 		lblFileNamePatterns = new JLabel("File name patterns (separated by comma):");
@@ -142,6 +154,10 @@ public class GrepConditionPanel extends JPanel {
 
 	public void addGrepConditionPanelListener(final GrepConditionPanelListener listener) {
 		listeners.add(listener);
+	}
+	
+	public String getMarkingText() {
+		return txtMarkingText.getText();
 	}
 	
 	public void setCondition(final GrepCondition condition) {
@@ -287,6 +303,9 @@ public class GrepConditionPanel extends JPanel {
 				txtContainingText2.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 				txtContainingText3.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 
+				lblMarkingText.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+				txtMarkingText.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+
 				lblFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 				txtFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 
@@ -317,6 +336,7 @@ public class GrepConditionPanel extends JPanel {
 		txtContainingText1.addKeyListener(textFieldSearchKeyListener);
 		txtContainingText2.addKeyListener(textFieldSearchKeyListener);
 		txtContainingText3.addKeyListener(textFieldSearchKeyListener);
+		txtMarkingText.addKeyListener(textFieldSearchKeyListener);
 		txtFileNamePatterns.addKeyListener(textFieldSearchKeyListener);
 		txtTargetDirectorys.addKeyListener(textFieldSearchKeyListener);
 		txtExcludeDirectoryNamePatterns.addKeyListener(textFieldSearchKeyListener);
