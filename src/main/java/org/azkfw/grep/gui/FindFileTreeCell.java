@@ -145,7 +145,7 @@ public class FindFileTreeCell  extends JPanel{
 
 		FontMetrics fm = txtTitle.getFontMetrics(txtTitle.getFont());
 		int width = fm.stringWidth(text);
-		System.out.println(value.toString() + " " + width);
+		//System.out.println(value.toString() + " " + width);
 
 		lblIcon.setLocation(0, 0);
 		lblIcon.setSize(iconSize, iconSize);

@@ -33,6 +33,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
@@ -44,6 +46,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.StyledEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.bind.JAXB;
@@ -62,6 +68,9 @@ import org.azkfw.grep.entity.GrepMatchWord;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
 import org.azkfw.grep.gui.FileTree.MatchLineObject;
+import org.azkfw.grep.gui.style.AbstractStyledDocument;
+import org.azkfw.grep.gui.style.JavaStyledDocument;
+import org.azkfw.grep.gui.style.SQLStyledDocument;
 
 /**
  * @author Kawakicchi
@@ -102,10 +111,16 @@ public class GrepFrame extends JFrame {
 
 	private StatusBar statusBar;
 	
+	private List<AbstractStyledDocument> styleDocuments;
+	
 	public GrepFrame() {
 		setTitle("AzukiGrep");
 		setLayout(null);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		
+		styleDocuments = new ArrayList<AbstractStyledDocument>();
+		styleDocuments.add(new JavaStyledDocument());
+		styleDocuments.add(new SQLStyledDocument());
 		
 		grep = new Grep();
 		
@@ -383,10 +398,27 @@ public class GrepFrame extends JFrame {
 	}
 		
 	private void setEdit(final GrepMatchFile matchFile, final GrepMatchWord matchWord) {
-		try {
+		try {			
 			textEditer.clearHighlighter();
 			textEditer.setText( FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()) );
 
+			
+			try {
+				SimpleAttributeSet s = new SimpleAttributeSet();
+				StyledDocument doc = (StyledDocument) textEditer.getDocument();
+				doc.setCharacterAttributes(0, doc.getLength(), s, true);
+
+				for (AbstractStyledDocument sd : styleDocuments) {
+					if (sd.isSupport(matchFile.getFile())) {
+						sd.apply(doc);
+						break;
+					}
+				}
+			} catch (BadLocationException ex) {
+				ex.printStackTrace();
+			}
+
+			
 			// XXX: 
 			textEditer.addHighlighter(matchFile.getWords());
 
