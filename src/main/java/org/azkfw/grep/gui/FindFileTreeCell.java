@@ -30,12 +30,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.azkfw.component.text.NoWrapEditorKit;
+import org.azkfw.grep.entity.GrepMatchWord;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
 import org.azkfw.grep.gui.FileTree.MatchLineObject;
 
@@ -60,6 +64,7 @@ public class FindFileTreeCell  extends JPanel{
 	private MutableAttributeSet atrDefault;
 	private MutableAttributeSet atrMatch;
 	private MutableAttributeSet atrLine;
+	private MutableAttributeSet atrMatchWord;
 	
 	private int iconSize = 18;
 
@@ -81,6 +86,8 @@ public class FindFileTreeCell  extends JPanel{
 		StyleConstants.setForeground(atrMatch, new Color(40,40,200));
 		atrLine = new SimpleAttributeSet();
 		StyleConstants.setForeground(atrLine, new Color(128, 128, 128));
+		atrMatchWord = new SimpleAttributeSet();
+		StyleConstants.setForeground(atrMatchWord, new Color(255, 0, 0));
 
 		icon = new ImageIcon();
 		lblIcon = new JLabel(icon);
@@ -120,12 +127,25 @@ public class FindFileTreeCell  extends JPanel{
 				if (m.find()) {
 					txtTitle.getStyledDocument().setCharacterAttributes(m.start(), m.end(), atrLine, true);
 				}
+				
+				try {
+				int index = txtTitle.getText().indexOf(":") + 2;
+				GrepMatchWord word = ((MatchLineObject)obj).getMatchWord();
+				int start = word.getStart() - word.getLineStart() + index;
+				int end = start + (word.getEnd()-word.getStart()) + index;
+				
+				HighlightPainter pointer = new DefaultHighlightPainter(Color.yellow);
+				txtTitle.getHighlighter().addHighlight(start, end, pointer);
+				//txtTitle.getStyledDocument().setCharacterAttributes(start, (word.getEnd()-word.getStart()), atrMatchWord, true);
+				} catch (BadLocationException ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 
 		FontMetrics fm = txtTitle.getFontMetrics(txtTitle.getFont());
 		int width = fm.stringWidth(text);
-		// System.out.println(value.toString() + " " + width);
+		System.out.println(value.toString() + " " + width);
 
 		lblIcon.setLocation(0, 0);
 		lblIcon.setSize(iconSize, iconSize);

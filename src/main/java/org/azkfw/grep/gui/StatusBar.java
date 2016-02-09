@@ -25,9 +25,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import org.azkfw.grep.util.FormatUtility;
+
 /**
+ * このクラスは、ステータスバークラスです。
  * @author Kawakicchi
- *
  */
 public class StatusBar extends JPanel{
 
@@ -93,7 +95,7 @@ public class StatusBar extends JPanel{
 	}
 
 	public void setSize(final long size) {
-		lblSize.setText(String.format("%d byte", size));
+		lblSize.setText(FormatUtility.byteToString(size));
 	}
 	public void setLineSeparator(final String lineSeparator) {
 		lblLineSeparator.setText(lineSeparator);
@@ -107,11 +109,11 @@ public class StatusBar extends JPanel{
 		int width = getWidth() - (insets.left + insets.right);
 		int height = getHeight() - (insets.top + insets.bottom);
 
-		label.setSize(width-160, height);
+		label.setSize(width-(100 + 60 + 100 + 160 + 4), height);
 
-		lblSize.setBounds(width - (100 + 60 + 60 + 160 + 4), 0, 100, height);
-		lblLineSeparator.setBounds(width - (60 + 60 + 160 + 4), 0, 60, height);
-		lblCharset.setBounds(width - (60 + 160 + 4), 0, 60, height);
+		lblSize.setBounds(width - (100 + 60 + 100 + 160 + 4), 0, 100, height);
+		lblLineSeparator.setBounds(width - (60 + 100 + 160 + 4), 0, 60, height);
+		lblCharset.setBounds(width - (100 + 160 + 4), 0, 100, height);
 
 		progress.setBounds(width - (160 + 4), 2, 160, height - 4);
 	}

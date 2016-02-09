@@ -166,7 +166,7 @@ public class GrepSearcher implements Runnable {
 					for (int i = index ; i < matchWords.size() ; i++) {
 						GrepMatchWord w = matchWords.get(i);
 						if (w.getStart() < start) {
-							w.setLine(lineNo, line);
+							w.setLine(lineNo, last, line);
 							index ++;
 						} else {
 							break;
@@ -177,7 +177,7 @@ public class GrepSearcher implements Runnable {
 				}
 				String line = source1.substring(last);
 				for (int i = index ; i < matchWords.size() ; i++) {
-					matchWords.get(i).setLine(lineNo, line);
+					matchWords.get(i).setLine(lineNo, last, line);
 				}
 
 				GrepMatchFile matchFile = new GrepMatchFile(file, file.length(), new Date(file.lastModified()), cashFile.getCharset(), lineSeparator, matchWords);

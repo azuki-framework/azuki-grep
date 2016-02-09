@@ -29,12 +29,19 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlType(propOrder={"line", "start", "end", "pattern"})
 public class GrepMatchWord implements DocumentPosition{
 
+	/** パターンNo */
 	private int pattern;
 
 	/** ワード */
 	private String word;
 
+	/** 行番号 */
 	private int lineNo;
+	
+	/** 行開始位置 */
+	private int lineStart;
+
+	/** 行文字列 */
 	private String lineString;
 
 	/** 開始位置 */
@@ -42,8 +49,10 @@ public class GrepMatchWord implements DocumentPosition{
 
 	/** 終了位置 */
 	private int end;
-	
+
+	/** */
 	private int virtualStart;
+	/** */
 	private int virtualEnd;
 
 	public GrepMatchWord(final int pattern, final String word, final int start, final int end, final int virtualStart, final int virtualEnd) {
@@ -75,14 +84,18 @@ public class GrepMatchWord implements DocumentPosition{
 		return word;
 	}
 
-	public void setLine(final int no, final String  string) {
+	public void setLine(final int no, final int start, final String  string) {
 		this.lineNo = no;
+		this.lineStart = start;
 		this.lineString = string;
 	}
 
 	@XmlAttribute(name="line")
 	public int getLine() {
 		return lineNo;
+	}
+	public int getLineStart() {
+		return lineStart;
 	}
 	public String getLineString() {
 		return lineString;
