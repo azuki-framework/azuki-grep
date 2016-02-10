@@ -33,14 +33,16 @@ import javax.swing.text.StyledDocument;
  */
 public class JavaStyledDocument extends AbstractStyledDocument {
 
-	private static final String key = "(package|class|extends|import|public|protected|private|static|final|return|throws|new|true|false|while|for|if|switch|case|else|void|null)";
-	private static final Pattern PTN_KEYWORD = Pattern.compile("(^|[\\s\\t\\r\\n]){1,1}"+key+"{1,1}([\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE);
-	private static final Pattern PNT_JAVADOC = Pattern.compile("(\\/\\*\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-	private static final Pattern PNT_COMMENT = Pattern.compile("(\\/\\/[^\\r\\n]*)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern PNT_ANNOTAT = Pattern.compile("(@[^\\s\\t\\r\\n]+)", Pattern.CASE_INSENSITIVE);
+	private static final String keywords = "(package|class|extends|import|public|protected|private|static|final|return|throws|new|true|false|while|for|if|switch|case|else|void|null)";
+
+	private static final Pattern PTN_FILE = Pattern.compile("^.*\\.java$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PTN_KEYWORD = Pattern.compile("(^|[\\s\\t\\r\\n]){1,1}" + keywords + "{1,1}([\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PTN_JAVADOC = Pattern.compile("(\\/\\*\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+	private static final Pattern PTN_COMMENT = Pattern.compile("(\\/\\/[^\\r\\n]*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PTN_ANNOTAT = Pattern.compile("(@[^\\s\\t\\r\\n]+)", Pattern.CASE_INSENSITIVE);
 	
 	public boolean isSupport(final File file) {
-		return file.getName().endsWith(".java");
+		return PTN_FILE.matcher(file.getName()).matches();
 	}
 
 	protected void doApply(final StyledDocument doc) throws BadLocationException {
@@ -49,10 +51,17 @@ public class JavaStyledDocument extends AbstractStyledDocument {
 		SimpleAttributeSet attrJavadoc = new SimpleAttributeSet();
         StyleConstants.setForeground(attrJavadoc, new Color(0, 0, 139));  // 文字の色
 		SimpleAttributeSet attrComment = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrComment, new Color(0, 80, 0));  // 文字の色
+        StyleConstants.setForeground(attrComment, new Color(0, 100, 0));  // 文字の色
 		SimpleAttributeSet attrAnnotat = new SimpleAttributeSet();
         StyleConstants.setForeground(attrAnnotat, new Color(70, 70, 200));  // 文字の色
-		
+
+        if (isEmphasis()) {
+        	StyleConstants.setBold(attrKeyword, true);
+        	StyleConstants.setBold(attrJavadoc, true);
+        	StyleConstants.setBold(attrComment, true);
+        	StyleConstants.setBold(attrAnnotat, true);
+        }
+
 		String source = doc.getText(0, doc.getLength());
 
 		int index = 0;
@@ -63,15 +72,15 @@ public class JavaStyledDocument extends AbstractStyledDocument {
 			 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrKeyword, true);
 			 index = m.start(3);
 		}
-		m = PNT_COMMENT.matcher(source);
+		m = PTN_COMMENT.matcher(source);
 		while (m.find()) {
 			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
 		}
-		m = PNT_JAVADOC.matcher(source);
+		m = PTN_JAVADOC.matcher(source);
 		while (m.find()) {
 			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrJavadoc, true);
 		}
-		m = PNT_ANNOTAT.matcher(source);
+		m = PTN_ANNOTAT.matcher(source);
 		while (m.find()) {
 			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrAnnotat, true);
 		}

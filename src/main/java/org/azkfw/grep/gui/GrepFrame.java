@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -49,7 +48,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.StyledEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.bind.JAXB;
@@ -58,7 +56,6 @@ import net.arnx.jsonic.JSON;
 
 import org.apache.commons.io.FileUtils;
 import org.azkfw.component.text.TextGradationsView;
-import org.azkfw.component.text.TextLineNumberView;
 import org.azkfw.grep.Grep;
 import org.azkfw.grep.GrepEvent;
 import org.azkfw.grep.GrepListener;
@@ -121,6 +118,9 @@ public class GrepFrame extends JFrame {
 		styleDocuments = new ArrayList<AbstractStyledDocument>();
 		styleDocuments.add(new JavaStyledDocument());
 		styleDocuments.add(new SQLStyledDocument());
+		for (AbstractStyledDocument sd : styleDocuments) {
+			sd.setEmphasis(false);
+		}
 		
 		grep = new Grep();
 		
@@ -184,7 +184,7 @@ public class GrepFrame extends JFrame {
 		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		splSub.setTopComponent(pnlCondition);
 		splSub.setBottomComponent(fileTreeScroll);
-		splSub.setDividerLocation(290);
+		splSub.setDividerLocation(340);
 		//splSub.setBorder(new LineBorder(Color.RED, 2, true));
 		splSub.setBorder(null);
 		

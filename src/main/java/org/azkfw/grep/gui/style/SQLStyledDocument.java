@@ -18,7 +18,15 @@
 package org.azkfw.grep.gui.style;
 
 import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,23 +41,51 @@ import javax.swing.text.StyledDocument;
  */
 public class SQLStyledDocument extends AbstractStyledDocument {
 
-	private static final String key = "(select|insert|update|from|inner|outer|join|left|right|on|union|all|where|and|or|siblings|group|order|by|asc|desc|nulls|first|last|for|wait|unique|distinct)";
-	private static final Pattern PTN_KEYWORD = Pattern.compile("(^|[\\s\\t\\r\\n]){1,1}"+key+"{1,1}([\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-	private static final Pattern PNT_JAVADOC = Pattern.compile("(\\/\\*\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-	private static final Pattern PNT_COMMENT = Pattern.compile("(--[^\\r\\n]*)", Pattern.CASE_INSENSITIVE);
-	
+	private static final Pattern PTN_FILE = Pattern.compile("^.*\\.sql$", Pattern.CASE_INSENSITIVE);
+	private static Pattern PTN_KEYWORD;
+	private static final Pattern PTN_COMMENT1 = Pattern.compile("(\\/\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+	private static final Pattern PTN_COMMENT2 = Pattern.compile("(--[^\\r\\n]*)", Pattern.CASE_INSENSITIVE);
+	private static Pattern PTN_FUNCTION;
+	private static final Pattern PTN_STRING = Pattern.compile("('[^']*'|\"[^\"]*\")", Pattern.CASE_INSENSITIVE);
+
+	private static Boolean LOAD = false;
+
+	public SQLStyledDocument() {
+		synchronized (LOAD) {
+			if (!LOAD) {
+				LOAD = true;
+
+				List<String> keywordList = getStringList("/org/azkfw/grep/sql_keyword.txt","UTF-8");
+				String keywords = getKeywordGroup(keywordList);
+				PTN_KEYWORD = Pattern.compile("(^|[,;\\(\\)\\s\\t\\r\\n]){1,1}" + keywords + "{1,1}([,;\\(\\)\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+				
+				List<String> functionList = getStringList("/org/azkfw/grep/sql_function.txt","UTF-8");
+				String functions = getKeywordGroup(functionList);
+				PTN_FUNCTION = Pattern.compile("(^|[,\\(\\)\\s\\t\\r\\n]){1,1}" + functions + "{1,1}([,\\s\\t\\r\\n])*(\\(){1,1}", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+			}
+		}
+	}
+
 	public boolean isSupport(final File file) {
-		return file.getName().endsWith(".sql");
+		return PTN_FILE.matcher(file.getName()).matches();
 	}
 
 	protected void doApply(final StyledDocument doc) throws BadLocationException {
 		SimpleAttributeSet attrKeyword = new SimpleAttributeSet();
         StyleConstants.setForeground(attrKeyword, new Color(128,0,64));  // 文字の色
-		SimpleAttributeSet attrJavadoc = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrJavadoc, new Color(0, 0, 139));  // 文字の色
 		SimpleAttributeSet attrComment = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrComment, new Color(0, 80, 0));  // 文字の色
-		
+        StyleConstants.setForeground(attrComment, new Color(0, 100, 0));  // 文字の色
+		SimpleAttributeSet attrFunction = new SimpleAttributeSet();
+        StyleConstants.setForeground(attrFunction, new Color(50, 50, 200));  // 文字の色
+		SimpleAttributeSet attrString = new SimpleAttributeSet();
+        StyleConstants.setForeground(attrString, new Color(255, 0, 0));  // 文字の色
+
+        if (isEmphasis()) {
+        	StyleConstants.setBold(attrKeyword, true);
+        	StyleConstants.setBold(attrComment, true);
+        	StyleConstants.setBold(attrFunction, true);
+        }
+
 		String source = doc.getText(0, doc.getLength());
 
 		int index = 0;
@@ -60,13 +96,23 @@ public class SQLStyledDocument extends AbstractStyledDocument {
 			 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrKeyword, true);
 			 index = m.start(3);
 		}
-		m = PNT_COMMENT.matcher(source);
+		index = 0;
+		m = PTN_FUNCTION.matcher(source);
+		while (m.find(index)) {
+			 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrFunction, true);
+			 index = m.start(4);
+		}
+		m = PTN_STRING.matcher(source);
+		while (m.find()) {
+			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrString, true);
+		}
+		m = PTN_COMMENT2.matcher(source);
 		while (m.find()) {
 			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
 		}
-		m = PNT_JAVADOC.matcher(source);
+		m = PTN_COMMENT1.matcher(source);
 		while (m.find()) {
-			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrJavadoc, true);
+			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
 		}
 	}
 }
