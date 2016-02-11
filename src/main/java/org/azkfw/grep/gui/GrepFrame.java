@@ -65,9 +65,9 @@ import org.azkfw.grep.entity.GrepMatchWord;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
 import org.azkfw.grep.gui.FileTree.MatchLineObject;
-import org.azkfw.grep.gui.style.AbstractStyledDocument;
-import org.azkfw.grep.gui.style.JavaStyledDocument;
-import org.azkfw.grep.gui.style.SQLStyledDocument;
+import org.azkfw.grep.gui.style.AbstractDocumentStyle;
+import org.azkfw.grep.gui.style.JavaDocumentStyle;
+import org.azkfw.grep.gui.style.SQLDocumentStyle;
 
 /**
  * @author Kawakicchi
@@ -108,17 +108,17 @@ public class GrepFrame extends JFrame {
 
 	private StatusBar statusBar;
 	
-	private List<AbstractStyledDocument> styleDocuments;
+	private List<AbstractDocumentStyle> styleDocuments;
 	
 	public GrepFrame() {
 		setTitle("AzukiGrep");
 		setLayout(null);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
-		styleDocuments = new ArrayList<AbstractStyledDocument>();
-		styleDocuments.add(new JavaStyledDocument());
-		styleDocuments.add(new SQLStyledDocument());
-		for (AbstractStyledDocument sd : styleDocuments) {
+		styleDocuments = new ArrayList<AbstractDocumentStyle>();
+		styleDocuments.add(new JavaDocumentStyle());
+		styleDocuments.add(new SQLDocumentStyle());
+		for (AbstractDocumentStyle sd : styleDocuments) {
 			sd.setEmphasis(false);
 		}
 		
@@ -402,13 +402,12 @@ public class GrepFrame extends JFrame {
 			textEditer.clearHighlighter();
 			textEditer.setText( FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()) );
 
-			
 			try {
 				SimpleAttributeSet s = new SimpleAttributeSet();
 				StyledDocument doc = (StyledDocument) textEditer.getDocument();
 				doc.setCharacterAttributes(0, doc.getLength(), s, true);
 
-				for (AbstractStyledDocument sd : styleDocuments) {
+				for (AbstractDocumentStyle sd : styleDocuments) {
 					if (sd.isSupport(matchFile.getFile())) {
 						sd.apply(doc);
 						break;

@@ -30,37 +30,39 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 
 /**
+ * 
  * @author Kawakicchi
- *
  */
-public abstract class AbstractStyledDocument {
+public abstract class AbstractDocumentStyle implements DocumentStyle{
 
 	private boolean emphasisFlag;
 	
 	public abstract boolean isSupport(final File file);
 	
-	public AbstractStyledDocument() {
+	public AbstractDocumentStyle() {
 		emphasisFlag = false;
 	}
 	
 	public void setEmphasis(final boolean flag) {
 		emphasisFlag = flag;
 	}
+	
 	public final boolean isEmphasis() {
 		return emphasisFlag;
 	}
 	
+	@Override
 	public void apply(final StyledDocument doc) throws BadLocationException {
 		doApply(doc);
 	}
-	
+		
 	protected abstract void doApply(final StyledDocument doc) throws BadLocationException ;
 	
 	protected final String getKeywordGroup(final List<String> keywords) {
 		StringBuffer s = new StringBuffer();
 		s.append("(");
 		for (String keyword : keywords) {
-			if (0 < s.length()) {
+			if (1 < s.length()) {
 				s.append("|");
 			}
 			s.append(keyword);
@@ -68,6 +70,7 @@ public abstract class AbstractStyledDocument {
 		s.append(")");
 		return s.toString();
 	}
+	
 	protected final List<String> getStringList(final String name, final String charset) {
 		List<String> strings = new ArrayList<String>();
 

@@ -18,14 +18,7 @@
 package org.azkfw.grep.gui.style;
 
 import java.awt.Color;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,30 +29,32 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 /**
+ * 
  * @author Kawakicchi
- *
  */
-public class SQLStyledDocument extends AbstractStyledDocument {
+public class SQLDocumentStyle extends AbstractDocumentStyle {
 
 	private static final Pattern PTN_FILE = Pattern.compile("^.*\\.sql$", Pattern.CASE_INSENSITIVE);
-	private static Pattern PTN_KEYWORD;
+	
 	private static final Pattern PTN_COMMENT1 = Pattern.compile("(\\/\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-	private static final Pattern PTN_COMMENT2 = Pattern.compile("(--[^\\r\\n]*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PTN_COMMENT2 = Pattern.compile("(--[^\\r\\n]*)");
+	private static final Pattern PTN_STRING = Pattern.compile("(('[^']*')|(\"((\\\\\")|[^\"])*\"))");
+	
+	private static Pattern PTN_KEYWORD;
 	private static Pattern PTN_FUNCTION;
-	private static final Pattern PTN_STRING = Pattern.compile("('[^']*'|\"[^\"]*\")", Pattern.CASE_INSENSITIVE);
 
 	private static Boolean LOAD = false;
 
-	public SQLStyledDocument() {
+	public SQLDocumentStyle() {
 		synchronized (LOAD) {
 			if (!LOAD) {
 				LOAD = true;
 
-				List<String> keywordList = getStringList("/org/azkfw/grep/sql_keyword.txt","UTF-8");
+				List<String> keywordList = getStringList("/org/azkfw/grep/sql_keyword.txt", "UTF-8");
 				String keywords = getKeywordGroup(keywordList);
 				PTN_KEYWORD = Pattern.compile("(^|[,;\\(\\)\\s\\t\\r\\n]){1,1}" + keywords + "{1,1}([,;\\(\\)\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 				
-				List<String> functionList = getStringList("/org/azkfw/grep/sql_function.txt","UTF-8");
+				List<String> functionList = getStringList("/org/azkfw/grep/sql_function.txt", "UTF-8");
 				String functions = getKeywordGroup(functionList);
 				PTN_FUNCTION = Pattern.compile("(^|[,\\(\\)\\s\\t\\r\\n]){1,1}" + functions + "{1,1}([,\\s\\t\\r\\n])*(\\(){1,1}", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 			}

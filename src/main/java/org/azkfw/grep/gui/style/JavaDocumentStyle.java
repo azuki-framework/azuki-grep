@@ -19,6 +19,7 @@ package org.azkfw.grep.gui.style;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,18 +29,35 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 /**
+ * 
  * @author Kawakicchi
- *
  */
-public class JavaStyledDocument extends AbstractStyledDocument {
-
-	private static final String keywords = "(package|class|extends|import|public|protected|private|static|final|return|throws|new|true|false|while|for|if|switch|case|else|void|null)";
+public class JavaDocumentStyle extends AbstractDocumentStyle {
 
 	private static final Pattern PTN_FILE = Pattern.compile("^.*\\.java$", Pattern.CASE_INSENSITIVE);
-	private static final Pattern PTN_KEYWORD = Pattern.compile("(^|[\\s\\t\\r\\n]){1,1}" + keywords + "{1,1}([\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE);
+	
 	private static final Pattern PTN_JAVADOC = Pattern.compile("(\\/\\*\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-	private static final Pattern PTN_COMMENT = Pattern.compile("(\\/\\/[^\\r\\n]*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern PTN_ANNOTAT = Pattern.compile("(@[^\\s\\t\\r\\n]+)", Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern PTN_COMMENT1 = Pattern.compile("(\\/\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+	private static final Pattern PTN_COMMENT2 = Pattern.compile("(\\/\\/[^\\r\\n]*)");
+	private static final Pattern PTN_STRING = Pattern.compile("(('[^']*')|(\"((\\\\\")|[^\"])*\"))");
+	
+	private static Pattern PTN_KEYWORD;
+
+	private static Boolean LOAD = false;
+	
+	public JavaDocumentStyle() {
+		synchronized (LOAD) {
+			if (!LOAD) {
+				LOAD = true;
+				
+				List<String> keywordList = getStringList("/org/azkfw/grep/java_keyword.txt", "UTF-8");
+				String keywords = getKeywordGroup(keywordList);
+				PTN_KEYWORD = Pattern.compile("(^|[,;\\(\\)\\s\\t\\r\\n]){1,1}" + keywords + "{1,1}([,;\\(\\)\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE);
+			}
+		}
+	}
 	
 	public boolean isSupport(final File file) {
 		return PTN_FILE.matcher(file.getName()).matches();
@@ -54,6 +72,8 @@ public class JavaStyledDocument extends AbstractStyledDocument {
         StyleConstants.setForeground(attrComment, new Color(0, 100, 0));  // 文字の色
 		SimpleAttributeSet attrAnnotat = new SimpleAttributeSet();
         StyleConstants.setForeground(attrAnnotat, new Color(70, 70, 200));  // 文字の色
+		SimpleAttributeSet attrString = new SimpleAttributeSet();
+        StyleConstants.setForeground(attrString, new Color(0, 0, 255));  // 文字の色
 
         if (isEmphasis()) {
         	StyleConstants.setBold(attrKeyword, true);
@@ -72,7 +92,15 @@ public class JavaStyledDocument extends AbstractStyledDocument {
 			 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrKeyword, true);
 			 index = m.start(3);
 		}
-		m = PTN_COMMENT.matcher(source);
+		m = PTN_STRING.matcher(source);
+		while (m.find()) {
+			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrString, true);
+		}
+		m = PTN_COMMENT2.matcher(source);
+		while (m.find()) {
+			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
+		}
+		m = PTN_COMMENT1.matcher(source);
 		while (m.find()) {
 			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
 		}
