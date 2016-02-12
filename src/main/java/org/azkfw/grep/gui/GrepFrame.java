@@ -77,11 +77,6 @@ public class GrepFrame extends JFrame {
 
 	/** serialVersionUID */
 	private static final long serialVersionUID = 3966217588565085514L;
-
-	public static void main(final String[] args) {
-		GrepFrame frm = new GrepFrame();
-		frm.setVisible(true);
-	}
 	
 	private Grep grep;
 	private GrepResult grepResult;

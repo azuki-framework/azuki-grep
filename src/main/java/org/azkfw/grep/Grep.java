@@ -28,12 +28,18 @@ import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.entity.GrepStatistics;
+import org.azkfw.grep.gui.GrepFrame;
 
 /**
  * 
  * @author Kawakicchi
  */
 public class Grep {
+	
+	public static void main(final String[] args) {
+		GrepFrame frm = new GrepFrame();
+		frm.setVisible(true);
+	}
 
 	private GrepEvent event;
 	private List<GrepListener> listeners;
@@ -65,6 +71,7 @@ public class Grep {
 	public GrepStatistics getStatistics() {
 		return statistics;
 	}
+	
 	public GrepCondition getCondition() {
 		return condition;
 	}

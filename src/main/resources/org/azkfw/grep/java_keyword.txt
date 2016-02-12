@@ -1,5 +1,6 @@
 package
 class
+enum
 interface
 extends
 implements
@@ -22,6 +23,7 @@ int
 double
 float
 char
+boolean
 
 null
 
@@ -34,6 +36,9 @@ switch
 case
 else
 void
+break
+default
+continue
 
 try
 catch

@@ -1,5 +1,4 @@
 
-
 -- subquery_factoring_clause
 SELECT
     /*+ hind */
