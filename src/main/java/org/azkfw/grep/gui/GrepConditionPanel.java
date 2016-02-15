@@ -17,6 +17,7 @@
  */
 package org.azkfw.grep.gui;
 
+import java.awt.Color;
 import java.awt.Insets;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -64,7 +65,8 @@ public class GrepConditionPanel extends JPanel {
 	private JTextField txtContainingText3;
 	
 	private JLabel lblMarkingText;
-	private JTextField txtMarkingText;
+	private JTextField txtMarkingText1;
+	private JTextField txtMarkingText2;
 
 	private JLabel lblFileNamePatterns;
 	private JTextField txtFileNamePatterns;
@@ -107,9 +109,15 @@ public class GrepConditionPanel extends JPanel {
 		lblMarkingText.setLocation(x, y);
 		add(lblMarkingText);
 		y += COMPONENT_HEIGHT;
-		txtMarkingText = new JTextField("");
-		txtMarkingText.setLocation(x, y);
-		add(txtMarkingText);
+		txtMarkingText1 = new JTextField("");
+		txtMarkingText1.setLocation(x, y);
+		txtMarkingText1.setBackground(new Color(240,140, 255));
+		add(txtMarkingText1);
+		y += COMPONENT_HEIGHT;
+		txtMarkingText2 = new JTextField("");
+		txtMarkingText2.setLocation(x, y);
+		txtMarkingText2.setBackground(new Color(30, 255, 180));
+		add(txtMarkingText2);
 		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
 
 		lblFileNamePatterns = new JLabel("File name patterns (separated by comma):");
@@ -156,8 +164,11 @@ public class GrepConditionPanel extends JPanel {
 		listeners.add(listener);
 	}
 	
-	public String getMarkingText() {
-		return txtMarkingText.getText();
+	public String getMarkingText1() {
+		return txtMarkingText1.getText();
+	}
+	public String getMarkingText2() {
+		return txtMarkingText2.getText();
 	}
 	
 	public void setCondition(final GrepCondition condition) {
@@ -304,7 +315,8 @@ public class GrepConditionPanel extends JPanel {
 				txtContainingText3.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 
 				lblMarkingText.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
-				txtMarkingText.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+				txtMarkingText1.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+				txtMarkingText2.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 
 				lblFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 				txtFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
@@ -336,7 +348,8 @@ public class GrepConditionPanel extends JPanel {
 		txtContainingText1.addKeyListener(textFieldSearchKeyListener);
 		txtContainingText2.addKeyListener(textFieldSearchKeyListener);
 		txtContainingText3.addKeyListener(textFieldSearchKeyListener);
-		txtMarkingText.addKeyListener(textFieldSearchKeyListener);
+		txtMarkingText1.addKeyListener(textFieldSearchKeyListener);
+		txtMarkingText2.addKeyListener(textFieldSearchKeyListener);
 		txtFileNamePatterns.addKeyListener(textFieldSearchKeyListener);
 		txtTargetDirectorys.addKeyListener(textFieldSearchKeyListener);
 		txtExcludeDirectoryNamePatterns.addKeyListener(textFieldSearchKeyListener);

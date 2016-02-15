@@ -416,8 +416,11 @@ public class GrepFrame extends JFrame {
 			// XXX: 
 			textEditer.addHighlighter(matchFile.getWords());
 
-			if (0 < pnlCondition.getMarkingText().length()) {
-				textEditer.addMark(pnlCondition.getMarkingText(), Color.pink);
+			if (0 < pnlCondition.getMarkingText1().length()) {
+				textEditer.addMark(pnlCondition.getMarkingText1(), new Color(240,140, 255));
+			}
+			if (0 < pnlCondition.getMarkingText2().length()) {
+				textEditer.addMark(pnlCondition.getMarkingText2(), new Color(30, 255, 180));
 			}
 			
 			// XXX: 
