@@ -86,28 +86,49 @@ public class SQLDocumentStyle extends AbstractDocumentStyle {
 		int index = 0;
 		
 		Matcher m = null;
-		m = PTN_KEYWORD.matcher(source);
-		while (m.find(index)) {
-			 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrKeyword, true);
-			 index = m.start(3);
+
+		try {
+			m = PTN_KEYWORD.matcher(source);
+			while (m.find(index)) {
+				 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrKeyword, true);
+				 index = m.start(3);
+			}
+		}catch (StackOverflowError e) {
+			e.printStackTrace();
 		}
-		index = 0;
-		m = PTN_FUNCTION.matcher(source);
-		while (m.find(index)) {
-			 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrFunction, true);
-			 index = m.start(4);
+		try {
+			index = 0;
+			m = PTN_FUNCTION.matcher(source);
+			while (m.find(index)) {
+				 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrFunction, true);
+				 index = m.start(4);
+			}
+		}catch (StackOverflowError e) {
+			e.printStackTrace();
 		}
-		m = PTN_STRING.matcher(source);
-		while (m.find()) {
-			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrString, true);
+		try {
+			m = PTN_STRING.matcher(source);
+			while (m.find()) {
+				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrString, true);
+			}
+		}catch (StackOverflowError e) {
+			e.printStackTrace();
 		}
-		m = PTN_COMMENT2.matcher(source);
-		while (m.find()) {
-			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
+		try {
+			m = PTN_COMMENT2.matcher(source);
+			while (m.find()) {
+				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
+			}
+		}catch (StackOverflowError e) {
+			e.printStackTrace();
 		}
-		m = PTN_COMMENT1.matcher(source);
-		while (m.find()) {
-			 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
+		try {
+			m = PTN_COMMENT1.matcher(source);
+			while (m.find()) {
+				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
+			}
+		}catch (StackOverflowError e) {
+			e.printStackTrace();
 		}
 	}
 }
