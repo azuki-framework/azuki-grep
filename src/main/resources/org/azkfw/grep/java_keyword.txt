@@ -15,6 +15,7 @@ static
 final
 return
 throws
+throw
 
 new
 true

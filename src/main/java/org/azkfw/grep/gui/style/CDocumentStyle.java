@@ -32,14 +32,11 @@ import javax.swing.text.StyledDocument;
  *
  * @author Kawakicchi
  */
-public class JavaDocumentStyle extends AbstractDocumentStyle {
+public class CDocumentStyle extends AbstractDocumentStyle {
 
-	private static final Pattern PTN_FILE = Pattern.compile("^.*\\.java$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PTN_FILE = Pattern.compile("^.*\\.(c|h)$", Pattern.CASE_INSENSITIVE);
 
-	private static final Pattern PTN_JAVADOC = Pattern.compile("(\\/\\*\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-	private static final Pattern PTN_ANNOTAT = Pattern.compile("(@[^\\s\\t\\r\\n]+)", Pattern.CASE_INSENSITIVE);
-
-	private static final Pattern PTN_COMMENT1 = Pattern.compile("(\\/\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+	private static final Pattern PTN_COMMENT1 = Pattern.compile("(\\/\\*.*?\\*\\/)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	private static final Pattern PTN_COMMENT2 = Pattern.compile("(\\/\\/[^\\r\\n]*)");
 	private static final Pattern PTN_STRING = Pattern.compile("(('[^']*')|(\"((\\\\\")|[^\"])*\"))");
 
@@ -47,12 +44,12 @@ public class JavaDocumentStyle extends AbstractDocumentStyle {
 
 	private static Boolean LOAD = false;
 
-	public JavaDocumentStyle() {
+	public CDocumentStyle() {
 		synchronized (LOAD) {
 			if (!LOAD) {
 				LOAD = true;
 
-				List<String> keywordList = getStringList("/org/azkfw/grep/java_keyword.txt", "UTF-8");
+				List<String> keywordList = getStringList("/org/azkfw/grep/c_keyword.txt", "UTF-8");
 				String keywords = getKeywordGroup(keywordList);
 				PTN_KEYWORD = Pattern.compile("(^|[,;\\(\\)\\s\\t\\r\\n]){1,1}" + keywords + "{1,1}([,;\\(\\)\\s\\t\\r\\n]|$){1,1}", Pattern.CASE_INSENSITIVE);
 			}
@@ -65,22 +62,16 @@ public class JavaDocumentStyle extends AbstractDocumentStyle {
 
 	protected void doApply(final StyledDocument doc) throws BadLocationException {
 		SimpleAttributeSet attrKeyword = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrKeyword, new Color(128,0,64));  // 文字の色
-		SimpleAttributeSet attrJavadoc = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrJavadoc, new Color(0, 0, 139));  // 文字の色
+		StyleConstants.setForeground(attrKeyword, new Color(128, 0, 64)); // 文字の色
 		SimpleAttributeSet attrComment = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrComment, new Color(0, 100, 0));  // 文字の色
-		SimpleAttributeSet attrAnnotat = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrAnnotat, new Color(70, 70, 200));  // 文字の色
+		StyleConstants.setForeground(attrComment, new Color(0, 100, 0)); // 文字の色
 		SimpleAttributeSet attrString = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrString, new Color(0, 0, 255));  // 文字の色
+		StyleConstants.setForeground(attrString, new Color(0, 0, 255)); // 文字の色
 
-        if (isEmphasis()) {
-        	StyleConstants.setBold(attrKeyword, true);
-        	StyleConstants.setBold(attrJavadoc, true);
-        	StyleConstants.setBold(attrComment, true);
-        	StyleConstants.setBold(attrAnnotat, true);
-        }
+		if (isEmphasis()) {
+			StyleConstants.setBold(attrKeyword, true);
+			StyleConstants.setBold(attrComment, true);
+		}
 
 		String source = doc.getText(0, doc.getLength());
 
@@ -90,50 +81,34 @@ public class JavaDocumentStyle extends AbstractDocumentStyle {
 		try {
 			m = PTN_KEYWORD.matcher(source);
 			while (m.find(index)) {
-				 doc.setCharacterAttributes(m.start(2), m.end(2)-m.start(2), attrKeyword, true);
-				 index = m.start(3);
+				doc.setCharacterAttributes(m.start(2), m.end(2) - m.start(2), attrKeyword, true);
+				index = m.start(3);
 			}
-		}catch (StackOverflowError e) {
+		} catch (StackOverflowError e) {
 			e.printStackTrace();
 		}
 		try {
 			m = PTN_STRING.matcher(source);
 			while (m.find()) {
-				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrString, true);
+				doc.setCharacterAttributes(m.start(), m.end() - m.start(), attrString, true);
 			}
-		}catch (StackOverflowError e) {
+		} catch (StackOverflowError e) {
 			e.printStackTrace();
 		}
 		try {
 			m = PTN_COMMENT2.matcher(source);
 			while (m.find()) {
-				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
+				doc.setCharacterAttributes(m.start(), m.end() - m.start(), attrComment, true);
 			}
-		}catch (StackOverflowError e) {
+		} catch (StackOverflowError e) {
 			e.printStackTrace();
 		}
 		try {
 			m = PTN_COMMENT1.matcher(source);
 			while (m.find()) {
-				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrComment, true);
+				doc.setCharacterAttributes(m.start(), m.end() - m.start(), attrComment, true);
 			}
-		}catch (StackOverflowError e) {
-			e.printStackTrace();
-		}
-		try {
-			m = PTN_JAVADOC.matcher(source);
-			while (m.find()) {
-				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrJavadoc, true);
-			}
-		}catch (StackOverflowError e) {
-			e.printStackTrace();
-		}
-		try {
-			m = PTN_ANNOTAT.matcher(source);
-			while (m.find()) {
-				 doc.setCharacterAttributes(m.start(), m.end()-m.start(), attrAnnotat, true);
-			}
-		}catch (StackOverflowError e) {
+		} catch (StackOverflowError e) {
 			e.printStackTrace();
 		}
 	}
