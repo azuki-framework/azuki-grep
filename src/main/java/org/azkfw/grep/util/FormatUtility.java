@@ -17,21 +17,30 @@
  */
 package org.azkfw.grep.util;
 
+import java.util.regex.Pattern;
+
 /**
  * @author Kawakicchi
- *
  */
 public class FormatUtility {
 
 	public static String byteToString(final long size) {
 		if (size > 1024 * 1024 * 1024) {
-			return String.format("%.2f GB", (double)size / (double)(1024.f * 1024.f * 1024.f));			
+			return String.format("%.2f GB", (double) size / (double) (1024.f * 1024.f * 1024.f));
 		} else if (size > 1024 * 1024) {
-			return String.format("%.2f MB", (double)size/(1024.f*1024.f));
+			return String.format("%.2f MB", (double) size / (1024.f * 1024.f));
 		} else if (size > 1024) {
-			return String.format("%.2f KB", (double)size/1024.f);
+			return String.format("%.2f KB", (double) size / 1024.f);
 		} else {
 			return String.format("%d Byte", size);
 		}
+	}
+
+	public static Pattern getSimpleMatchPattern(final String pattern) {
+		String ptn = pattern.replaceAll("\\.", "\\\\.");
+		ptn = ptn.replaceAll("\\*", ".*");
+		ptn = ptn.replaceAll("\\?", ".+");
+		ptn = ptn.replaceAll("\\!", "^");
+		return Pattern.compile(ptn, Pattern.CASE_INSENSITIVE);
 	}
 }

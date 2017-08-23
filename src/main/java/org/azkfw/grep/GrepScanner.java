@@ -26,11 +26,11 @@ import org.azkfw.grep.entity.GrepCondition;
 
 /**
  * @author Kawakicchi
- *
  */
 public class GrepScanner implements Runnable {
 
 	private Grep grep;
+
 	private GrepCondition condition;
 
 	public GrepScanner(final Grep parent, final GrepCondition condition) {
@@ -48,13 +48,22 @@ public class GrepScanner implements Runnable {
 			}
 		}
 	}
-	
+
 	private boolean doFile(final File file) {
 		grep.searchFile(file);
-		
+
 		String name = file.getName();
+
+		final List<FileNamePattern> excludes = condition.getExcludeFileNamePatterns();
+		for (FileNamePattern exclude : excludes) {
+			// TODO: 毎回パターンコンパイルしている非効率
+			if (exclude.getPattern().matcher(name).matches()) {
+				return false;
+			}
+		}
+
 		List<FileNamePattern> includes = condition.getFileNamePatterns();
-		if ( 0 == includes.size() ) {
+		if (0 == includes.size()) {
 			grep.offerFile(file);
 		} else {
 			for (FileNamePattern include : includes) {
@@ -70,15 +79,15 @@ public class GrepScanner implements Runnable {
 
 	private boolean doDirectory(final File directory) {
 		String name = directory.getName();
-		
+
 		List<DirectoryNamePattern> excludes = condition.getExcludeDirectoryNamePatterns();
 		for (DirectoryNamePattern exclude : excludes) {
 			// TODO: 毎回パターンコンパイルしている非効率
 			if (exclude.getPattern().matcher(name).matches()) {
 				return false;
 			}
-		}		
-		
+		}
+
 		File[] files = directory.listFiles();
 		for (File file : files) {
 			if (file.isFile()) {

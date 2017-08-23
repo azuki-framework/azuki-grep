@@ -25,17 +25,18 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
 /**
- * 
  * @author Kawakicchi
  */
 public class GrepCondition {
-	
+
 	private List<ContainingText> containingTexts;
 
 	private List<FileNamePattern> fileNamePatterns;
 
 	private List<TargetDirectory> targetDirectorys;
-	
+
+	private List<FileNamePattern> excludeFileNamePatterns;
+
 	private List<DirectoryNamePattern> excludeDirectoryNamePatterns;
 
 	/**
@@ -45,25 +46,27 @@ public class GrepCondition {
 		containingTexts = new ArrayList<ContainingText>();
 		fileNamePatterns = new ArrayList<FileNamePattern>();
 		targetDirectorys = new ArrayList<TargetDirectory>();
+
+		excludeFileNamePatterns = new ArrayList<FileNamePattern>();
 		excludeDirectoryNamePatterns = new ArrayList<DirectoryNamePattern>();
 	}
 
 	public void setContainingTexts(final List<ContainingText> containingTexts) {
-    	this.containingTexts = containingTexts;
-    }
+		this.containingTexts = containingTexts;
+	}
 
-	@XmlElementWrapper(name="ContainingTexts")
-	@XmlElement(name="ContainingText")
+	@XmlElementWrapper(name = "ContainingTexts")
+	@XmlElement(name = "ContainingText")
 	public List<ContainingText> getContainingTexts() {
 		return containingTexts;
 	}
-    
+
 	public void setFileNamePatterns(final List<FileNamePattern> fileNamePatterns) {
 		this.fileNamePatterns = fileNamePatterns;
 	}
 
-	@XmlElementWrapper(name="FileNamePatterns")
-	@XmlElement(name="FileNamePattern")
+	@XmlElementWrapper(name = "FileNamePatterns")
+	@XmlElement(name = "FileNamePattern")
 	public List<FileNamePattern> getFileNamePatterns() {
 		return fileNamePatterns;
 	}
@@ -72,8 +75,8 @@ public class GrepCondition {
 		this.targetDirectorys = targetDirectorys;
 	}
 
-	@XmlElementWrapper(name="TargetDirectorys")
-	@XmlElement(name="TargetDirectory")
+	@XmlElementWrapper(name = "TargetDirectorys")
+	@XmlElement(name = "TargetDirectory")
 	public List<TargetDirectory> getTargetDirectorys() {
 		return targetDirectorys;
 	}
@@ -87,12 +90,22 @@ public class GrepCondition {
 		return files;
 	}
 
+	public void setExcludeFileNamePatterns(final List<FileNamePattern> fileNamePatterns) {
+		this.excludeFileNamePatterns = fileNamePatterns;
+	}
+
+	@XmlElementWrapper(name = "ExcludeFileNamePatterns")
+	@XmlElement(name = "ExcludeFileNamePattern")
+	public List<FileNamePattern> getExcludeFileNamePatterns() {
+		return excludeFileNamePatterns;
+	}
+
 	public void setExcludeDirectoryNamePatterns(final List<DirectoryNamePattern> directoryNamePatterns) {
 		this.excludeDirectoryNamePatterns = directoryNamePatterns;
 	}
 
-	@XmlElementWrapper(name="ExcludeDirectoryNamePatterns")
-	@XmlElement(name="ExcludeDirectoryNamePattern")
+	@XmlElementWrapper(name = "ExcludeDirectoryNamePatterns")
+	@XmlElement(name = "ExcludeDirectoryNamePattern")
 	public List<DirectoryNamePattern> getExcludeDirectoryNamePatterns() {
 		return excludeDirectoryNamePatterns;
 	}

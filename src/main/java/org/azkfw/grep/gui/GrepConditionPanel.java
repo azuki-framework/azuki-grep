@@ -56,26 +56,37 @@ public class GrepConditionPanel extends JPanel {
 	private static final long serialVersionUID = 2498823616809145690L;
 
 	private static final int COMPONENT_HEIGHT = 24;
+
 	private static final int COMPONENT_MARGIN = 6;
+
 	private static final int COMPONENT_SPACE = 4;
 
 	private JLabel lblContainingText;
+
 	private JTextField txtContainingText1;
+
 	private JTextField txtContainingText2;
+
 	private JTextField txtContainingText3;
-	
+
 	private JLabel lblMarkingText;
+
 	private JTextField txtMarkingText1;
+
 	private JTextField txtMarkingText2;
 
 	private JLabel lblFileNamePatterns;
+
 	private JTextField txtFileNamePatterns;
 
 	private JLabel lblTargetDirectorys;
+
 	private JTextField txtTargetDirectorys;
+
 	private JButton btnTargetDirectorys;
 
 	private JLabel lblExcludeDirectoryNamePatterns;
+
 	private JTextField txtExcludeDirectoryNamePatterns;
 
 	private JButton btnSearch;
@@ -104,14 +115,14 @@ public class GrepConditionPanel extends JPanel {
 		txtContainingText3.setLocation(x, y);
 		add(txtContainingText3);
 		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
-		
+
 		lblMarkingText = new JLabel("Marking text:");
 		lblMarkingText.setLocation(x, y);
 		add(lblMarkingText);
 		y += COMPONENT_HEIGHT;
 		txtMarkingText1 = new JTextField("");
 		txtMarkingText1.setLocation(x, y);
-		txtMarkingText1.setBackground(new Color(240,140, 255));
+		txtMarkingText1.setBackground(new Color(240, 140, 255));
 		add(txtMarkingText1);
 		y += COMPONENT_HEIGHT;
 		txtMarkingText2 = new JTextField("");
@@ -163,14 +174,15 @@ public class GrepConditionPanel extends JPanel {
 	public void addGrepConditionPanelListener(final GrepConditionPanelListener listener) {
 		listeners.add(listener);
 	}
-	
+
 	public String getMarkingText1() {
 		return txtMarkingText1.getText();
 	}
+
 	public String getMarkingText2() {
 		return txtMarkingText2.getText();
 	}
-	
+
 	public void setCondition(final GrepCondition condition) {
 		List<ContainingText> texts = condition.getContainingTexts();
 		if (0 < texts.size()) {
@@ -202,7 +214,7 @@ public class GrepConditionPanel extends JPanel {
 			strTargetDirectorys.append(directory.getValue());
 		}
 		txtTargetDirectorys.setText(strTargetDirectorys.toString());
-		
+
 		List<DirectoryNamePattern> excludeDirectoryNamePatterns = condition.getExcludeDirectoryNamePatterns();
 		StringBuffer strExcludeDirectoryNamaePatterns = new StringBuffer();
 		for (DirectoryNamePattern pattern : excludeDirectoryNamePatterns) {
@@ -213,10 +225,10 @@ public class GrepConditionPanel extends JPanel {
 		}
 		txtExcludeDirectoryNamePatterns.setText(strExcludeDirectoryNamaePatterns.toString());
 	}
-	
+
 	public GrepCondition getCondition() {
 		GrepCondition condition = new GrepCondition();
-		
+
 		List<ContainingText> containingTexts = new ArrayList<ContainingText>();
 		ContainingText containingText1 = new ContainingText();
 		containingText1.setValue(txtContainingText1.getText());
@@ -229,9 +241,8 @@ public class GrepConditionPanel extends JPanel {
 		containingTexts.add(containingText3);
 		condition.setContainingTexts(containingTexts);
 
-		
 		String[] split = null;
-		
+
 		List<FileNamePattern> fileNamePatterns = new ArrayList<FileNamePattern>();
 		split = txtFileNamePatterns.getText().split("[\\s]*,[\\s]*");
 		for (String s : split) {
@@ -240,7 +251,7 @@ public class GrepConditionPanel extends JPanel {
 			fileNamePatterns.add(fileNamePattern);
 		}
 		condition.setFileNamePatterns(fileNamePatterns);
-		
+
 		List<TargetDirectory> targetDirectorys = new ArrayList<TargetDirectory>();
 		split = txtTargetDirectorys.getText().split("[\\s]*;[\\s]*");
 		for (String s : split) {
@@ -250,6 +261,27 @@ public class GrepConditionPanel extends JPanel {
 		}
 		condition.setTargetDirectorys(targetDirectorys);
 
+		{
+			List<FileNamePattern> excludeFileNamePatterns = new ArrayList<FileNamePattern>();
+			condition.setExcludeFileNamePatterns(excludeFileNamePatterns);
+
+			FileNamePattern fileNamePattern = new FileNamePattern();
+			fileNamePattern.setValue("*.zip");
+			excludeFileNamePatterns.add(fileNamePattern);
+
+			fileNamePattern = new FileNamePattern();
+			fileNamePattern.setValue("*.lzh");
+			excludeFileNamePatterns.add(fileNamePattern);
+
+			fileNamePattern = new FileNamePattern();
+			fileNamePattern.setValue("*.jar");
+			excludeFileNamePatterns.add(fileNamePattern);
+
+			fileNamePattern = new FileNamePattern();
+			fileNamePattern.setValue("*.mdb");
+			excludeFileNamePatterns.add(fileNamePattern);
+		}
+
 		List<DirectoryNamePattern> excludeDirectoryNamePatterns = new ArrayList<DirectoryNamePattern>();
 		split = txtExcludeDirectoryNamePatterns.getText().split("[\\s]*,[\\s]*");
 		for (String s : split) {
@@ -258,10 +290,10 @@ public class GrepConditionPanel extends JPanel {
 			excludeDirectoryNamePatterns.add(directoryNamePattern);
 		}
 		condition.setExcludeDirectoryNamePatterns(excludeDirectoryNamePatterns);
-		
+
 		return condition;
 	}
-	
+
 	private void search() {
 		GrepCondition condition = getCondition();
 		synchronized (listeners) {
@@ -322,7 +354,8 @@ public class GrepConditionPanel extends JPanel {
 				txtFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 
 				lblTargetDirectorys.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
-				txtTargetDirectorys.setSize(width - (COMPONENT_MARGIN * 2) - 40, COMPONENT_HEIGHT);
+				txtTargetDirectorys.setSize(width - (COMPONENT_MARGIN * 2)
+					- 40, COMPONENT_HEIGHT);
 				btnTargetDirectorys.setLocation(width - (40 + COMPONENT_MARGIN), txtTargetDirectorys.getY());
 
 				lblExcludeDirectoryNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
@@ -393,9 +426,9 @@ public class GrepConditionPanel extends JPanel {
 					if (0 < old.length() && !old.endsWith(";")) {
 						old += "; ";
 					}
-					
+
 					String add = old + fileList.toString();
-					
+
 					txtTargetDirectorys.setText(add);
 				} catch (UnsupportedFlavorException | IOException ex) {
 					ex.printStackTrace();

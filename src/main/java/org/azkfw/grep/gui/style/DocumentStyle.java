@@ -17,15 +17,18 @@
  */
 package org.azkfw.grep.gui.style;
 
+import java.io.File;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 
 /**
- * 
  * @author Kawakicchi
  */
 public interface DocumentStyle {
 
-	public void apply(final StyledDocument doc) throws BadLocationException;
+	boolean isSupport(final File file);
+
+	void apply(final StyledDocument doc) throws BadLocationException;
 
 }

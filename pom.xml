@@ -38,16 +38,7 @@
         </repository>
     </distributionManagement>
 
-    <repositories>
-        <repository>
-            <id>AzukiFrameworkRepository</id>
-            <url>https://raw.github.com/azuki-framework/maven-repository/master/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
+
 
     <dependencies>
 		<dependency>
@@ -70,7 +61,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<version>2.5</version>
 		</dependency>
 
 
@@ -137,4 +128,21 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+		<repository>
+			<id>myteam-nexus</id>
+			<name>public</name>
+			<url>http://10.160.3.25:8081/nexus/content/groups/public</url>
+		</repository>
+
+        <repository>
+            <id>AzukiFrameworkRepository</id>
+            <url>https://raw.github.com/azuki-framework/maven-repository/master/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>

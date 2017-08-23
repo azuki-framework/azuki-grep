@@ -33,8 +33,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -65,14 +63,11 @@ import org.azkfw.grep.entity.GrepMatchWord;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
 import org.azkfw.grep.gui.FileTree.MatchLineObject;
-import org.azkfw.grep.gui.style.AbstractDocumentStyle;
-import org.azkfw.grep.gui.style.CDocumentStyle;
-import org.azkfw.grep.gui.style.JavaDocumentStyle;
-import org.azkfw.grep.gui.style.SQLDocumentStyle;
+import org.azkfw.grep.gui.style.DocumentStyle;
+import org.azkfw.grep.gui.style.DocumentStyleFactory;
 
 /**
  * @author Kawakicchi
- *
  */
 public class GrepFrame extends JFrame {
 
@@ -80,44 +75,51 @@ public class GrepFrame extends JFrame {
 	private static final long serialVersionUID = 3966217588565085514L;
 
 	private Grep grep;
+
 	private GrepResult grepResult;
 
 	private JSplitPane splMain;
+
 	private JSplitPane splSub;
 
 	private GrepConditionPanel pnlCondition;
+
 	private FileTree fileTree;
+
 	private JScrollPane fileTreeScroll;
 
 	private GrepTextEditer textEditer;
+
 	private JScrollPane textEditerScroll;
 
 	private JMenuBar menuBar;
+
 	private JMenu menuFile;
+
 	private JMenu menuFileExport;
+
 	private JMenuItem menuFileExportExcel;
+
 	private JMenuItem menuFileExportXML;
+
 	private JMenuItem menuFileExportHTML;
+
 	private JMenuItem menuFileExit;
+
 	private JMenu menuHelp;
+
 	private JMenuItem menuHelpVersion;
 
 	private StatusBar statusBar;
 
-	private List<AbstractDocumentStyle> styleDocuments;
+	private final SimpleAttributeSet defaultAttributeSet;
 
 	public GrepFrame() {
 		setTitle("AzukiGrep");
 		setLayout(null);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-		styleDocuments = new ArrayList<AbstractDocumentStyle>();
-		styleDocuments.add(new CDocumentStyle());
-		styleDocuments.add(new JavaDocumentStyle());
-		styleDocuments.add(new SQLDocumentStyle());
-		for (AbstractDocumentStyle sd : styleDocuments) {
-			sd.setEmphasis(false);
-		}
+		defaultAttributeSet = new SimpleAttributeSet();
 
 		grep = new Grep();
 
@@ -214,15 +216,18 @@ public class GrepFrame extends JFrame {
 		JAXB.marshal(pnlCondition.getCondition(), file);
 	}
 
-	private void reportXML(final GrepResult result, final File file) {
+	private void reportXML(final GrepResult result,
+		final File file) {
 		JAXB.marshal(result, file);
 	}
 
-	private void reportHTML(final GrepResult result, final File file) {
+	private void reportHTML(final GrepResult result,
+		final File file) {
 
 	}
 
-	private void reportExcel(final GrepResult result, final File file) {
+	private void reportExcel(final GrepResult result,
+		final File file) {
 
 	}
 
@@ -266,7 +271,8 @@ public class GrepFrame extends JFrame {
 			}
 
 			@Override
-			public void grepFinished(final GrepEvent e, final GrepResult r) {
+			public void grepFinished(final GrepEvent e,
+				final GrepResult r) {
 				String message = String.format("%d 件見つかりました", e.getSource().getStatistics().getFindFileCount());
 				statusBar.setMessage(message);
 
@@ -280,7 +286,8 @@ public class GrepFrame extends JFrame {
 			}
 
 			@Override
-			public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
+			public void grepFindFile(final GrepEvent e,
+				final GrepMatchFile f) {
 				String message = String.format("%s", f.getFile().getName());
 				statusBar.setMessage(message);
 
@@ -293,7 +300,8 @@ public class GrepFrame extends JFrame {
 			public void componentResized(final ComponentEvent e) {
 				Insets insets = getInsets();
 				int width = getWidth() - (insets.left + insets.right);
-				int height = getHeight() - (insets.top + insets.bottom) - menuBar.getHeight();
+				int height = getHeight() - (insets.top + insets.bottom)
+					- menuBar.getHeight();
 
 				splMain.setSize(width, height - 24);
 
@@ -400,21 +408,19 @@ public class GrepFrame extends JFrame {
 		});
 	}
 
-	private void setEdit(final GrepMatchFile matchFile, final GrepMatchWord matchWord) {
+	private void setEdit(final GrepMatchFile matchFile,
+		final GrepMatchWord matchWord) {
 		try {
 			textEditer.clearHighlighter();
 			textEditer.setText(FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()));
 
 			try {
-				SimpleAttributeSet s = new SimpleAttributeSet();
-				StyledDocument doc = (StyledDocument) textEditer.getDocument();
-				doc.setCharacterAttributes(0, doc.getLength(), s, true);
+				final StyledDocument doc = (StyledDocument) textEditer.getDocument();
+				doc.setCharacterAttributes(0, doc.getLength(), defaultAttributeSet, true);
 
-				for (AbstractDocumentStyle sd : styleDocuments) {
-					if (sd.isSupport(matchFile.getFile())) {
-						sd.apply(doc);
-						break;
-					}
+				final DocumentStyle documentStyle = DocumentStyleFactory.getDefaultInstance().getSupportDocumentStyle(matchFile.getFile());
+				if (null != documentStyle) {
+					documentStyle.apply(doc);
 				}
 			} catch (BadLocationException ex) {
 				ex.printStackTrace();

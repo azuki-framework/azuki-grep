@@ -32,19 +32,20 @@ import org.apache.commons.io.FileUtils;
 import org.azkfw.grep.cash.CashFile;
 import org.azkfw.grep.cash.CashStore;
 import org.azkfw.grep.entity.ContainingText;
-import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepMatchWord;
 import org.mozilla.universalchardet.UniversalDetector;
 
 /**
  * @author Kawakicchi
- *
  */
 public class GrepSearcher implements Runnable {
 
 	private Grep grep;
+
 	private GrepCondition condition;
+
 	private CashStore store;
 
 	public GrepSearcher(final Grep parent, final GrepCondition condition, final CashStore store) {
@@ -69,8 +70,11 @@ public class GrepSearcher implements Runnable {
 	}
 
 	private static final Pattern PTN_RETURN = Pattern.compile("\\r\\n|\\r|\\n");
+
 	private static final Pattern PTN_RETURN_CRLF = Pattern.compile("\\r\\n");
+
 	private static final Pattern PTN_RETURN_LF = Pattern.compile("[^\\r]\\n");
+
 	private static final Pattern PTN_RETURN_CR = Pattern.compile("\\r[^\\n]");
 
 	private String getLineSeparator(final String source) {
@@ -108,7 +112,7 @@ public class GrepSearcher implements Runnable {
 					encode = System.getProperty("file.encoding");
 				}
 				String text = FileUtils.readFileToString(file, encode);
-				if (text.charAt(0) == 65279) {// UTF-8 marker
+				if (0 < text.length() && text.charAt(0) == 65279) {// UTF-8 marker
 					text = text.substring(1);
 				}
 				cashFile = new CashFile(file, text, encode);
@@ -143,7 +147,7 @@ public class GrepSearcher implements Runnable {
 						break;
 					}
 				}
-				patternIndex ++;
+				patternIndex++;
 			}
 
 			if (matchFlag) {
@@ -154,7 +158,7 @@ public class GrepSearcher implements Runnable {
 						return o1.getStart() - o2.getStart();
 					}
 				});
-				
+
 				// line count
 				Matcher m = PTN_RETURN.matcher(source1);
 				int lineNo = 1;
@@ -163,24 +167,29 @@ public class GrepSearcher implements Runnable {
 				while (m.find()) {
 					int start = m.start();
 					String line = source1.substring(last, start);
-					for (int i = index ; i < matchWords.size() ; i++) {
+					for (int i = index; i < matchWords.size(); i++) {
 						GrepMatchWord w = matchWords.get(i);
 						if (w.getStart() < start) {
 							w.setLine(lineNo, last, line);
-							index ++;
+							index++;
 						} else {
 							break;
 						}
 					}
 					last = m.end();
-					lineNo ++;
+					lineNo++;
 				}
 				String line = source1.substring(last);
-				for (int i = index ; i < matchWords.size() ; i++) {
+				for (int i = index; i < matchWords.size(); i++) {
 					matchWords.get(i).setLine(lineNo, last, line);
 				}
 
-				GrepMatchFile matchFile = new GrepMatchFile(file, file.length(), new Date(file.lastModified()), cashFile.getCharset(), lineSeparator, matchWords);
+				GrepMatchFile matchFile = new GrepMatchFile(file,
+															file.length(),
+															new Date(file.lastModified()),
+															cashFile.getCharset(),
+															lineSeparator,
+															matchWords);
 				grep.findFile(matchFile);
 			}
 			// ----------------------------------------------------

@@ -21,28 +21,28 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlValue;
 
+import org.azkfw.grep.util.FormatUtility;
+
 /**
- * 
  * @author Kawakicchi
  */
 public class DirectoryNamePattern {
 
 	private String value;
-	
+
+	private Pattern pattern;
+
 	public void setValue(final String value) {
 		this.value = value;
+		this.pattern = FormatUtility.getSimpleMatchPattern(value);
 	}
-	
+
 	@XmlValue
 	public String getValue() {
 		return value;
 	}
-	
+
 	public Pattern getPattern() {
-		String ptn = value.replaceAll("\\.", "\\\\.");
-		ptn = ptn.replaceAll("\\*", ".*");
-		ptn = ptn.replaceAll("\\?", ".+");
-		ptn = ptn.replaceAll("\\!", "^");
-		return Pattern.compile(ptn, Pattern.CASE_INSENSITIVE);
+		return pattern;
 	}
 }
