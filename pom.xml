@@ -18,7 +18,7 @@
 
     <groupId>org.azkfw</groupId>
     <artifactId>azuki-grep</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>azuki-grep</name>
@@ -38,13 +38,11 @@
         </repository>
     </distributionManagement>
 
-
-
     <dependencies>
 		<dependency>
 			<groupId>org.azkfw</groupId>
 			<artifactId>azuki-component</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -103,6 +101,30 @@
                 </configuration>
             </plugin>
 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>org.azkfw.grep.Grep</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-sample-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -130,12 +152,6 @@
     </build>
 
     <repositories>
-		<repository>
-			<id>myteam-nexus</id>
-			<name>public</name>
-			<url>http://10.160.3.25:8081/nexus/content/groups/public</url>
-		</repository>
-
         <repository>
             <id>AzukiFrameworkRepository</id>
             <url>https://raw.github.com/azuki-framework/maven-repository/master/</url>

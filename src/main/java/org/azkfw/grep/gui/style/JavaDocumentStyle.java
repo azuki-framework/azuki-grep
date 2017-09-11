@@ -36,14 +36,14 @@ public class JavaDocumentStyle extends AbstractPatternDocumentStyle {
 		final List<String> keywordList = getStringList("/org/azkfw/grep/java_keyword.txt", "UTF-8");
 		final String keywords = getKeywordGroup(keywordList);
 
-		final String regKeywords = String.format("(^|[,;\\(\\)\\s\\t\\r\\n])(%s)([,;\\(\\)\\s\\t\\r\\n]|$)", keywords);
+		final String regKeywords = String.format("(^|[,;\\(\\)\\[\\]\\s\\t\\r\\n])(%s)([,;\\(\\)\\[\\]\\s\\t\\r\\n]|$)", keywords);
 		final Pattern PTN_KEYWORD = Pattern.compile(regKeywords, Pattern.CASE_INSENSITIVE);
 
 		final Pattern PTN_STRING = Pattern.compile("(\"([^\"]*)\")");
 
 		final Pattern PTN_KIGO = Pattern.compile("([\\,\\(\\)\\{\\}\\*\\+\\-=<>\\|])");
 
-		final Pattern PTN_NUMBER = Pattern.compile("([\\s\\,\\(\\)\\+\\-]|^|\\n)([0-9\\.]+)([\\s\\,\\(\\)\\+\\-]|$|\\n)");
+		final Pattern PTN_NUMBER = Pattern.compile("([\\s\\,\\(\\)\\[\\]\\+\\-]|^|\\n)([0-9\\.]+)([\\s\\,\\(\\)\\[\\]\\+\\-]|$|\\n)");
 
 		final Pattern PTN_COMMENT1 = Pattern.compile("(//.*)");
 		final Pattern PTN_COMMENT2 = Pattern.compile("(/\\*([^*]|\\*[^/])*\\*/)", Pattern.DOTALL);

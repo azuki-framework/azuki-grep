@@ -61,35 +61,39 @@ public class GrepConditionPanel extends JPanel {
 
 	private static final int COMPONENT_SPACE = 4;
 
-	private JLabel lblContainingText;
+	private final JLabel lblContainingText;
 
-	private JTextField txtContainingText1;
+	private final JTextField txtContainingText1;
 
-	private JTextField txtContainingText2;
+	private final JTextField txtContainingText2;
 
-	private JTextField txtContainingText3;
+	private final JTextField txtContainingText3;
 
-	private JLabel lblMarkingText;
+	private final JLabel lblMarkingText;
 
-	private JTextField txtMarkingText1;
+	private final JTextField txtMarkingText1;
 
-	private JTextField txtMarkingText2;
+	private final JTextField txtMarkingText2;
 
-	private JLabel lblFileNamePatterns;
+	private final JLabel lblFileNamePatterns;
 
-	private JTextField txtFileNamePatterns;
+	private final JTextField txtFileNamePatterns;
 
-	private JLabel lblTargetDirectorys;
+	private final JLabel lblExcludeFileNamePatterns;
 
-	private JTextField txtTargetDirectorys;
+	private final JTextField txtExcludeFileNamePatterns;
 
-	private JButton btnTargetDirectorys;
+	private final JLabel lblTargetDirectorys;
 
-	private JLabel lblExcludeDirectoryNamePatterns;
+	private final JTextField txtTargetDirectorys;
 
-	private JTextField txtExcludeDirectoryNamePatterns;
+	private final JButton btnTargetDirectorys;
 
-	private JButton btnSearch;
+	private final JLabel lblExcludeDirectoryNamePatterns;
+
+	private final JTextField txtExcludeDirectoryNamePatterns;
+
+	private final JButton btnSearch;
 
 	private List<GrepConditionPanelListener> listeners;
 
@@ -138,6 +142,15 @@ public class GrepConditionPanel extends JPanel {
 		txtFileNamePatterns = new JTextField("");
 		txtFileNamePatterns.setLocation(x, y);
 		add(txtFileNamePatterns);
+		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
+
+		lblExcludeFileNamePatterns = new JLabel("Exclude file name patterns (separated by comma):");
+		lblExcludeFileNamePatterns.setLocation(x, y);
+		add(lblExcludeFileNamePatterns);
+		y += COMPONENT_HEIGHT;
+		txtExcludeFileNamePatterns = new JTextField("");
+		txtExcludeFileNamePatterns.setLocation(x, y);
+		add(txtExcludeFileNamePatterns);
 		y += COMPONENT_HEIGHT + COMPONENT_SPACE;
 
 		lblTargetDirectorys = new JLabel("Target directorys (separated by semicolon):");
@@ -205,6 +218,16 @@ public class GrepConditionPanel extends JPanel {
 		}
 		txtFileNamePatterns.setText(strFileNamePatterns.toString());
 
+		List<FileNamePattern> excludeFileNamePatterns = condition.getExcludeFileNamePatterns();
+		StringBuffer strExcludeFileNamePatterns = new StringBuffer();
+		for (FileNamePattern pattern : excludeFileNamePatterns) {
+			if (0 < strExcludeFileNamePatterns.length()) {
+				strExcludeFileNamePatterns.append(", ");
+			}
+			strExcludeFileNamePatterns.append(pattern.getValue());
+		}
+		txtExcludeFileNamePatterns.setText(strExcludeFileNamePatterns.toString());
+
 		List<TargetDirectory> targetDirectorys = condition.getTargetDirectorys();
 		StringBuffer strTargetDirectorys = new StringBuffer();
 		for (TargetDirectory directory : targetDirectorys) {
@@ -252,6 +275,15 @@ public class GrepConditionPanel extends JPanel {
 		}
 		condition.setFileNamePatterns(fileNamePatterns);
 
+		List<FileNamePattern> excludeFileNamePatterns = new ArrayList<FileNamePattern>();
+		split = txtExcludeFileNamePatterns.getText().split("[\\s]*,[\\s]*");
+		for (String s : split) {
+			FileNamePattern fileNamePattern = new FileNamePattern();
+			fileNamePattern.setValue(s);
+			excludeFileNamePatterns.add(fileNamePattern);
+		}
+		condition.setExcludeFileNamePatterns(excludeFileNamePatterns);
+
 		List<TargetDirectory> targetDirectorys = new ArrayList<TargetDirectory>();
 		split = txtTargetDirectorys.getText().split("[\\s]*;[\\s]*");
 		for (String s : split) {
@@ -260,27 +292,6 @@ public class GrepConditionPanel extends JPanel {
 			targetDirectorys.add(targetDirectory);
 		}
 		condition.setTargetDirectorys(targetDirectorys);
-
-		{
-			List<FileNamePattern> excludeFileNamePatterns = new ArrayList<FileNamePattern>();
-			condition.setExcludeFileNamePatterns(excludeFileNamePatterns);
-
-			FileNamePattern fileNamePattern = new FileNamePattern();
-			fileNamePattern.setValue("*.zip");
-			excludeFileNamePatterns.add(fileNamePattern);
-
-			fileNamePattern = new FileNamePattern();
-			fileNamePattern.setValue("*.lzh");
-			excludeFileNamePatterns.add(fileNamePattern);
-
-			fileNamePattern = new FileNamePattern();
-			fileNamePattern.setValue("*.jar");
-			excludeFileNamePatterns.add(fileNamePattern);
-
-			fileNamePattern = new FileNamePattern();
-			fileNamePattern.setValue("*.mdb");
-			excludeFileNamePatterns.add(fileNamePattern);
-		}
 
 		List<DirectoryNamePattern> excludeDirectoryNamePatterns = new ArrayList<DirectoryNamePattern>();
 		split = txtExcludeDirectoryNamePatterns.getText().split("[\\s]*,[\\s]*");
@@ -353,9 +364,11 @@ public class GrepConditionPanel extends JPanel {
 				lblFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 				txtFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
 
+				lblExcludeFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+				txtExcludeFileNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
+
 				lblTargetDirectorys.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
-				txtTargetDirectorys.setSize(width - (COMPONENT_MARGIN * 2)
-					- 40, COMPONENT_HEIGHT);
+				txtTargetDirectorys.setSize(width - (COMPONENT_MARGIN * 2) - 40, COMPONENT_HEIGHT);
 				btnTargetDirectorys.setLocation(width - (40 + COMPONENT_MARGIN), txtTargetDirectorys.getY());
 
 				lblExcludeDirectoryNamePatterns.setSize(width - (COMPONENT_MARGIN * 2), COMPONENT_HEIGHT);
@@ -384,6 +397,7 @@ public class GrepConditionPanel extends JPanel {
 		txtMarkingText1.addKeyListener(textFieldSearchKeyListener);
 		txtMarkingText2.addKeyListener(textFieldSearchKeyListener);
 		txtFileNamePatterns.addKeyListener(textFieldSearchKeyListener);
+		txtExcludeFileNamePatterns.addKeyListener(textFieldSearchKeyListener);
 		txtTargetDirectorys.addKeyListener(textFieldSearchKeyListener);
 		txtExcludeDirectoryNamePatterns.addKeyListener(textFieldSearchKeyListener);
 

@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Queue;
 
 import org.azkfw.grep.cash.CashStore;
-import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.entity.GrepStatistics;
 import org.azkfw.grep.gui.GrepFrame;
@@ -35,9 +35,9 @@ import org.azkfw.grep.gui.GrepFrame;
  * @author Kawakicchi
  */
 public class Grep {
-	
+
 	public static void main(final String[] args) {
-		GrepFrame frm = new GrepFrame();
+		final GrepFrame frm = new GrepFrame();
 		frm.setVisible(true);
 	}
 
@@ -50,9 +50,9 @@ public class Grep {
 
 	private GrepCondition condition;
 	private BaseGrepStatistics statistics;
-	
+
 	private CashStore store;
-	
+
 	private List<GrepMatchFile> matchFiles;
 
 	public Grep() {
@@ -64,14 +64,14 @@ public class Grep {
 
 		statistics = new BaseGrepStatistics();
 		store = new CashStore();
-		
+
 		matchFiles = new ArrayList<GrepMatchFile>();
 	}
-	
+
 	public GrepStatistics getStatistics() {
 		return statistics;
 	}
-	
+
 	public GrepCondition getCondition() {
 		return condition;
 	}
@@ -88,7 +88,7 @@ public class Grep {
 		synchronized (runningFlag) {
 			if (!runningFlag) {
 				this.condition = condition;
-				
+
 				runningFlag = Boolean.TRUE;
 				stopRequest = Boolean.FALSE;
 
@@ -96,7 +96,7 @@ public class Grep {
 					@Override
 					public void run() {
 						matchFiles.clear();
-						
+
 						// call listener start
 						synchronized (listeners) {
 							for (GrepListener listener : listeners) {
@@ -144,7 +144,7 @@ public class Grep {
 			}
 		}
 	}
-	
+
 	private Thread scanner;
 	private List<Thread> searchers;
 	private Queue<File> files;
@@ -186,11 +186,11 @@ public class Grep {
 	void searchFile(final File file) {
 		statistics.countupSearchFile(file);
 	}
-	
+
 	void offerFile(final File file) {
 		synchronized (files) {
 			statistics.countupTargetFile(file);
-			
+
 			files.offer(file);
 		}
 	}
@@ -202,13 +202,13 @@ public class Grep {
 		}
 		return file;
 	}
-	
+
 	void findFile(final GrepMatchFile matchFile) {
 		// call listener finished
 		synchronized (listeners) {
 			matchFiles.add(matchFile);
 			statistics.countupFindFile(matchFile.getFile());
-			
+
 			for (GrepListener listener : listeners) {
 				listener.grepFindFile(event, matchFile);
 			}
@@ -223,7 +223,7 @@ public class Grep {
 		return true;
 	}
 
-	public class BaseGrepStatistics implements GrepStatistics{
+	public class BaseGrepStatistics implements GrepStatistics {
 
 		/** トータルファイル数 */
 		private long totalSearchFile;
@@ -231,29 +231,31 @@ public class Grep {
 		private long totalTargetFile;
 		/** 該当ファイル数 */
 		private long totalFindFile;
-		
+
 		public void reset() {
 			totalSearchFile = 0;
 			totalTargetFile = 0;
 			totalFindFile = 0;
 		}
-		
+
 		void countupSearchFile(final File file) {
-			totalSearchFile ++;
+			totalSearchFile++;
 		}
+
 		void countupTargetFile(final File file) {
-			totalTargetFile ++;
+			totalTargetFile++;
 		}
+
 		void countupFindFile(final File file) {
-			totalFindFile ++;
+			totalFindFile++;
 		}
-				
+
 		public void print() {
 			System.out.println(String.format("SearchFile : %d", totalSearchFile));
 			System.out.println(String.format("TargetFile : %d", totalTargetFile));
 			System.out.println(String.format("FindFile   : %d", totalFindFile));
 		}
-		
+
 		@Override
 		public long getFindFileCount() {
 			return totalFindFile;

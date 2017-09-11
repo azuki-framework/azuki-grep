@@ -115,7 +115,7 @@ public class GrepFrame extends JFrame {
 	private final SimpleAttributeSet defaultAttributeSet;
 
 	public GrepFrame() {
-		setTitle("AzukiGrep");
+		setTitle("AzukiGrep Ver_0.0.1");
 		setLayout(null);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -183,7 +183,7 @@ public class GrepFrame extends JFrame {
 		splSub = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		splSub.setTopComponent(pnlCondition);
 		splSub.setBottomComponent(fileTreeScroll);
-		splSub.setDividerLocation(370);
+		splSub.setDividerLocation(420);
 		// splSub.setBorder(new LineBorder(Color.RED, 2, true));
 		splSub.setBorder(null);
 
@@ -203,9 +203,10 @@ public class GrepFrame extends JFrame {
 
 	private void load() {
 		File file = new File("condition.xml");
-		GrepCondition condition = JAXB.unmarshal(file, GrepCondition.class);
-
-		pnlCondition.setCondition(condition);
+		if (file.isFile()) {
+			GrepCondition condition = JAXB.unmarshal(file, GrepCondition.class);
+			pnlCondition.setCondition(condition);
+		}
 	}
 
 	private void save() {
@@ -216,18 +217,15 @@ public class GrepFrame extends JFrame {
 		JAXB.marshal(pnlCondition.getCondition(), file);
 	}
 
-	private void reportXML(final GrepResult result,
-		final File file) {
+	private void reportXML(final GrepResult result, final File file) {
 		JAXB.marshal(result, file);
 	}
 
-	private void reportHTML(final GrepResult result,
-		final File file) {
+	private void reportHTML(final GrepResult result, final File file) {
 
 	}
 
-	private void reportExcel(final GrepResult result,
-		final File file) {
+	private void reportExcel(final GrepResult result, final File file) {
 
 	}
 
@@ -271,8 +269,7 @@ public class GrepFrame extends JFrame {
 			}
 
 			@Override
-			public void grepFinished(final GrepEvent e,
-				final GrepResult r) {
+			public void grepFinished(final GrepEvent e, final GrepResult r) {
 				String message = String.format("%d 件見つかりました", e.getSource().getStatistics().getFindFileCount());
 				statusBar.setMessage(message);
 
@@ -286,8 +283,7 @@ public class GrepFrame extends JFrame {
 			}
 
 			@Override
-			public void grepFindFile(final GrepEvent e,
-				final GrepMatchFile f) {
+			public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
 				String message = String.format("%s", f.getFile().getName());
 				statusBar.setMessage(message);
 
@@ -300,8 +296,7 @@ public class GrepFrame extends JFrame {
 			public void componentResized(final ComponentEvent e) {
 				Insets insets = getInsets();
 				int width = getWidth() - (insets.left + insets.right);
-				int height = getHeight() - (insets.top + insets.bottom)
-					- menuBar.getHeight();
+				int height = getHeight() - (insets.top + insets.bottom) - menuBar.getHeight();
 
 				splMain.setSize(width, height - 24);
 
@@ -408,8 +403,7 @@ public class GrepFrame extends JFrame {
 		});
 	}
 
-	private void setEdit(final GrepMatchFile matchFile,
-		final GrepMatchWord matchWord) {
+	private void setEdit(final GrepMatchFile matchFile, final GrepMatchWord matchWord) {
 		try {
 			textEditer.clearHighlighter();
 			textEditer.setText(FileUtils.readFileToString(matchFile.getFile(), matchFile.getCharset()));
