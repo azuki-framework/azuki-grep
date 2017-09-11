@@ -42,18 +42,19 @@ import org.mozilla.universalchardet.UniversalDetector;
  */
 public class GrepSearcher implements Runnable {
 
-	private Grep grep;
+	private final Grep grep;
 
-	private GrepCondition condition;
+	private final GrepCondition condition;
 
-	private CashStore store;
+	private final CashStore store;
 
 	public GrepSearcher(final Grep parent, final GrepCondition condition, final CashStore store) {
-		grep = parent;
+		this.grep = parent;
 		this.condition = condition;
 		this.store = store;
 	}
 
+	@Override
 	public void run() {
 		while (!grep.isSearcherStop()) {
 			File file = grep.pollFile();
@@ -184,12 +185,8 @@ public class GrepSearcher implements Runnable {
 					matchWords.get(i).setLine(lineNo, last, line);
 				}
 
-				GrepMatchFile matchFile = new GrepMatchFile(file,
-															file.length(),
-															new Date(file.lastModified()),
-															cashFile.getCharset(),
-															lineSeparator,
-															matchWords);
+				GrepMatchFile matchFile = new GrepMatchFile(file, file.length(), new Date(file.lastModified()), cashFile.getCharset(), lineSeparator,
+						matchWords);
 				grep.findFile(matchFile);
 			}
 			// ----------------------------------------------------

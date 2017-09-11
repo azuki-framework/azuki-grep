@@ -19,16 +19,17 @@ package org.azkfw.grep;
 
 /**
  * このクラスは、Grepのイベント情報を保持するクラスです。
+ * 
  * @author Kawakicchi
  */
 public class GrepEvent {
 
-	private Grep source;
-	
+	private final Grep source;
+
 	public GrepEvent(final Grep source) {
 		this.source = source;
 	}
-	
+
 	public Grep getSource() {
 		return source;
 	}

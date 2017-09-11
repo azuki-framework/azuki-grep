@@ -21,24 +21,25 @@ import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepResult;
 
 /**
+ * このクラスは、Grepイベントを空実装したクラスです。
  * 
  * @author Kawakicchi
  */
-public class GrepAdapter implements GrepListener{
+public class GrepAdapter implements GrepListener {
 
 	@Override
 	public void grepStart(final GrepEvent e) {
-		
+
 	}
 
 	@Override
 	public void grepFinished(final GrepEvent e, final GrepResult r) {
-		
+
 	}
 
 	@Override
 	public void grepFindFile(final GrepEvent e, final GrepMatchFile f) {
-		
+
 	}
 
 }

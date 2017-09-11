@@ -18,7 +18,7 @@
 
     <groupId>org.azkfw</groupId>
     <artifactId>azuki-grep</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>azuki-grep</name>
@@ -110,7 +110,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.azkfw.grep.Grep</mainClass>
+							<mainClass>org.azkfw.grep.Application</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

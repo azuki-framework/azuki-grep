@@ -74,7 +74,7 @@ public class GrepFrame extends JFrame {
 	/** serialVersionUID */
 	private static final long serialVersionUID = 3966217588565085514L;
 
-	private Grep grep;
+	private final Grep grep;
 
 	private GrepResult grepResult;
 
@@ -115,13 +115,13 @@ public class GrepFrame extends JFrame {
 	private final SimpleAttributeSet defaultAttributeSet;
 
 	public GrepFrame() {
-		setTitle("AzukiGrep Ver_0.0.1");
+		setTitle("AzukiGrep Ver_0.0.2");
 		setLayout(null);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-		defaultAttributeSet = new SimpleAttributeSet();
-
 		grep = new Grep();
+
+		defaultAttributeSet = new SimpleAttributeSet();
 
 		initMenuBar();
 		initStatusBar();

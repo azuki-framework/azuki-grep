@@ -17,36 +17,16 @@
  */
 package org.azkfw.grep;
 
-import org.azkfw.grep.entity.GrepMatchFile;
-import org.azkfw.grep.entity.GrepResult;
+import org.azkfw.grep.gui.GrepFrame;
 
 /**
- * このインターフェースは、Grepイベントを定義したインターフェースです。
- * 
  * @author Kawakicchi
  */
-public interface GrepListener {
+public class Application {
 
-	/**
-	 * Grep開始時に呼び出される
-	 * 
-	 * @param e イベント
-	 */
-	void grepStart(GrepEvent e);
+	public static void main(final String[] args) {
+		final GrepFrame frm = new GrepFrame();
+		frm.setVisible(true);
+	}
 
-	/**
-	 * Grep終了時に呼び出される
-	 * 
-	 * @param e イベント
-	 * @param r 結果
-	 */
-	void grepFinished(GrepEvent e, GrepResult r);
-
-	/**
-	 * 対象ファイルが見つかった時に呼び出される
-	 * 
-	 * @param e イベント
-	 * @param f ファイル情報
-	 */
-	void grepFindFile(GrepEvent e, GrepMatchFile f);
 }

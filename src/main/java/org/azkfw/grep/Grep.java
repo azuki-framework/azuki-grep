@@ -28,7 +28,6 @@ import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.entity.GrepStatistics;
-import org.azkfw.grep.gui.GrepFrame;
 
 /**
  * 
@@ -36,20 +35,16 @@ import org.azkfw.grep.gui.GrepFrame;
  */
 public class Grep {
 
-	public static void main(final String[] args) {
-		final GrepFrame frm = new GrepFrame();
-		frm.setVisible(true);
-	}
+	private final GrepEvent event;
+	private final List<GrepListener> listeners;
 
-	private GrepEvent event;
-	private List<GrepListener> listeners;
+	private final MyGrepStatistics statistics;
 
 	private Boolean runningFlag;
 	@SuppressWarnings("unused")
 	private Boolean stopRequest;
 
 	private GrepCondition condition;
-	private BaseGrepStatistics statistics;
 
 	private CashStore store;
 
@@ -59,13 +54,18 @@ public class Grep {
 		event = new GrepEvent(this);
 		listeners = new ArrayList<GrepListener>();
 
+		statistics = new MyGrepStatistics();
+
 		runningFlag = Boolean.FALSE;
 		stopRequest = Boolean.FALSE;
 
-		statistics = new BaseGrepStatistics();
 		store = new CashStore();
 
 		matchFiles = new ArrayList<GrepMatchFile>();
+	}
+
+	public synchronized void addGrepListener(final GrepListener listener) {
+		listeners.add(listener);
 	}
 
 	public GrepStatistics getStatistics() {
@@ -76,23 +76,18 @@ public class Grep {
 		return condition;
 	}
 
-	public void addGrepListener(final GrepListener listener) {
-		synchronized (listeners) {
-			listeners.add(listener);
-		}
-	}
-
 	public boolean start(final GrepCondition condition) {
 		boolean result = false;
 
-		synchronized (runningFlag) {
+		synchronized (this) {
+
 			if (!runningFlag) {
 				this.condition = condition;
 
 				runningFlag = Boolean.TRUE;
 				stopRequest = Boolean.FALSE;
 
-				Thread thread = new Thread(new Runnable() {
+				final Thread thread = new Thread(new Runnable() {
 					@Override
 					public void run() {
 						matchFiles.clear();
@@ -112,7 +107,7 @@ public class Grep {
 
 						long endNanoTime = System.nanoTime();
 
-						GrepResult result = new GrepResult();
+						final GrepResult result = new GrepResult();
 						result.setProcessingNanoTime(endNanoTime - startNanoTime);
 						result.setMatchFiles(matchFiles);
 
@@ -128,6 +123,7 @@ public class Grep {
 				result = true;
 			}
 		}
+
 		return result;
 	}
 
@@ -157,7 +153,7 @@ public class Grep {
 		scanner.start();
 
 		searchers = new ArrayList<Thread>();
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 2; i++) {
 			searchers.add(new Thread(new GrepSearcher(this, condition, store)));
 		}
 		for (Thread thread : searchers) {
@@ -223,7 +219,7 @@ public class Grep {
 		return true;
 	}
 
-	public class BaseGrepStatistics implements GrepStatistics {
+	private class MyGrepStatistics implements GrepStatistics {
 
 		/** トータルファイル数 */
 		private long totalSearchFile;

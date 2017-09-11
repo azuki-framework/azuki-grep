@@ -29,17 +29,18 @@ import org.azkfw.grep.entity.GrepCondition;
  */
 public class GrepScanner implements Runnable {
 
-	private Grep grep;
+	private final Grep grep;
 
-	private GrepCondition condition;
+	private final GrepCondition condition;
 
 	public GrepScanner(final Grep parent, final GrepCondition condition) {
-		grep = parent;
+		this.grep = parent;
 		this.condition = condition;
 	}
 
+	@Override
 	public void run() {
-		List<File> files = condition.getTargetDirectoryFiles();
+		final List<File> files = condition.getTargetDirectoryFiles();
 		for (File file : files) {
 			if (file.isFile()) {
 				doFile(file);
@@ -52,7 +53,7 @@ public class GrepScanner implements Runnable {
 	private boolean doFile(final File file) {
 		grep.searchFile(file);
 
-		String name = file.getName();
+		final String name = file.getName();
 
 		final List<FileNamePattern> excludes = condition.getExcludeFileNamePatterns();
 		for (FileNamePattern exclude : excludes) {
@@ -62,7 +63,7 @@ public class GrepScanner implements Runnable {
 			}
 		}
 
-		List<FileNamePattern> includes = condition.getFileNamePatterns();
+		final List<FileNamePattern> includes = condition.getFileNamePatterns();
 		if (0 == includes.size()) {
 			grep.offerFile(file);
 		} else {
@@ -78,9 +79,9 @@ public class GrepScanner implements Runnable {
 	}
 
 	private boolean doDirectory(final File directory) {
-		String name = directory.getName();
+		final String name = directory.getName();
 
-		List<DirectoryNamePattern> excludes = condition.getExcludeDirectoryNamePatterns();
+		final List<DirectoryNamePattern> excludes = condition.getExcludeDirectoryNamePatterns();
 		for (DirectoryNamePattern exclude : excludes) {
 			// TODO: 毎回パターンコンパイルしている非効率
 			if (exclude.getPattern().matcher(name).matches()) {
@@ -88,7 +89,7 @@ public class GrepScanner implements Runnable {
 			}
 		}
 
-		File[] files = directory.listFiles();
+		final File[] files = directory.listFiles();
 		for (File file : files) {
 			if (file.isFile()) {
 				doFile(file);
