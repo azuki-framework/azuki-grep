@@ -28,21 +28,27 @@ import javax.xml.bind.annotation.XmlValue;
 public class ContainingText {
 
 	private String value;
-	
+	private Pattern pattern;
+
+	public ContainingText(final String value) {
+		setValue(value);
+	}
+
 	public void setValue(final String value) {
 		this.value = value;
+
+		this.pattern = null;
+		if (null != value && 0 < value.length()) {
+			this.pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
+		}
 	}
-	
+
 	@XmlValue
 	public String getValue() {
 		return value;
 	}
-	
+
 	public Pattern getPattern() {
-		Pattern pattern = null;
-		if (null != value && 0 < value.length()) {
-			pattern = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
-		}
 		return pattern;
 	}
 }

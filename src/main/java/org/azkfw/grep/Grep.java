@@ -30,15 +30,20 @@ import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.entity.GrepStatistics;
 
 /**
+ * このクラスは、Grepを行うクラスです。
  * 
  * @author Kawakicchi
  */
 public class Grep {
 
+	/** Grep event info */
 	private final GrepEvent event;
+	/** Grep event listeners */
 	private final List<GrepListener> listeners;
 
 	private final MyGrepStatistics statistics;
+
+	private final CashStore store;
 
 	private Boolean runningFlag;
 	@SuppressWarnings("unused")
@@ -46,20 +51,23 @@ public class Grep {
 
 	private GrepCondition condition;
 
-	private CashStore store;
-
 	private List<GrepMatchFile> matchFiles;
 
-	public Grep() {
-		event = new GrepEvent(this);
-		listeners = new ArrayList<GrepListener>();
+	private int searcherSize = 2;
 
-		statistics = new MyGrepStatistics();
+	public Grep() {
+		this(null);
+	}
+
+	public Grep(final CashStore store) {
+		this.event = new GrepEvent(this);
+		this.listeners = new ArrayList<GrepListener>();
+
+		this.statistics = new MyGrepStatistics();
+		this.store = store;
 
 		runningFlag = Boolean.FALSE;
 		stopRequest = Boolean.FALSE;
-
-		store = new CashStore();
 
 		matchFiles = new ArrayList<GrepMatchFile>();
 	}
@@ -94,18 +102,16 @@ public class Grep {
 
 						// call listener start
 						synchronized (listeners) {
-							for (GrepListener listener : listeners) {
-								listener.grepStart(event);
-							}
+							listeners.forEach(l -> l.grepStart(event));
 						}
 
-						long startNanoTime = System.nanoTime();
+						final long startNanoTime = System.nanoTime();
 
 						doThreadMain();
 
 						runningFlag = Boolean.FALSE;
 
-						long endNanoTime = System.nanoTime();
+						final long endNanoTime = System.nanoTime();
 
 						final GrepResult result = new GrepResult();
 						result.setProcessingNanoTime(endNanoTime - startNanoTime);
@@ -113,13 +119,13 @@ public class Grep {
 
 						// call listener finished
 						synchronized (listeners) {
-							for (GrepListener listener : listeners) {
-								listener.grepFinished(event, result);
-							}
+							listeners.forEach(l -> l.grepFinished(event, result));
 						}
 					}
 				});
+				thread.setName("AzukiGrepMainThread");
 				thread.start();
+
 				result = true;
 			}
 		}
@@ -131,30 +137,38 @@ public class Grep {
 		stopRequest = Boolean.TRUE;
 	}
 
-	public void waitFor() {
-		while (runningFlag) {
-			try {
+	public boolean waitFor() {
+		boolean result = false;
+		try {
+			while (runningFlag) {
 				Thread.sleep(100);
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
 			}
+			result = true;
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
 		}
+		return result;
 	}
 
 	private Thread scanner;
 	private List<Thread> searchers;
+
 	private Queue<File> files;
 
 	private void doThreadMain() {
 		statistics.reset();
+
 		files = new LinkedList<File>();
 
 		scanner = new Thread(new GrepScanner(this, condition));
+		scanner.setName("AzukiGrepScannerThread");
 		scanner.start();
 
 		searchers = new ArrayList<Thread>();
-		for (int i = 0; i < 2; i++) {
-			searchers.add(new Thread(new GrepSearcher(this, condition, store)));
+		for (int i = 0; i < searcherSize; i++) {
+			Thread searcher = new Thread(new GrepSearcher(this, condition, store));
+			searcher.setName("AzukiGrepSearcherThread-" + (i + 1));
+			searchers.add(searcher);
 		}
 		for (Thread thread : searchers) {
 			thread.start();
@@ -162,7 +176,7 @@ public class Grep {
 
 		while (!isStop()) {
 			try {
-				Thread.sleep(100);
+				Thread.sleep(500);
 			} catch (InterruptedException ex) {
 				ex.printStackTrace();
 			}
@@ -170,19 +184,40 @@ public class Grep {
 	}
 
 	private boolean isStop() {
-		if (scanner.isAlive())
+		if (scanner.isAlive()) {
 			return false;
+		}
 		for (Thread searcher : searchers) {
-			if (searcher.isAlive())
+			if (searcher.isAlive()) {
 				return false;
+			}
 		}
 		return true;
 	}
 
+	/**
+	 * Grep対象有無に関わらず見つけたファイル
+	 * 
+	 * @param file ファイル
+	 */
 	void searchFile(final File file) {
 		statistics.countupSearchFile(file);
 	}
 
+	/**
+	 * Grep対象有無に関わらず見つけたディレクトリ
+	 * 
+	 * @param file ファイル
+	 */
+	void searchDirectory(final File directory) {
+
+	}
+
+	/**
+	 * Grep対象のファイルをキューに入れる。
+	 * 
+	 * @param file ファイル
+	 */
 	void offerFile(final File file) {
 		synchronized (files) {
 			statistics.countupTargetFile(file);
@@ -191,6 +226,11 @@ public class Grep {
 		}
 	}
 
+	/**
+	 * Grep対象のファイルをキューから取得する。
+	 * 
+	 * @return
+	 */
 	File pollFile() {
 		File file = null;
 		synchronized (files) {
@@ -205,9 +245,7 @@ public class Grep {
 			matchFiles.add(matchFile);
 			statistics.countupFindFile(matchFile.getFile());
 
-			for (GrepListener listener : listeners) {
-				listener.grepFindFile(event, matchFile);
-			}
+			listeners.forEach(l -> l.grepFindFile(event, matchFile));
 		}
 	}
 

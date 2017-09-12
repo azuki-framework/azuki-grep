@@ -26,11 +26,15 @@ import javax.xml.bind.annotation.XmlValue;
 public class TargetDirectory {
 
 	private String value;
-	
+
+	public TargetDirectory(final String value) {
+		setValue(value);
+	}
+
 	public void setValue(final String value) {
 		this.value = value;
 	}
-	
+
 	@XmlValue
 	public String getValue() {
 		return value;

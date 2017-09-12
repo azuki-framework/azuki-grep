@@ -253,12 +253,9 @@ public class GrepConditionPanel extends JPanel {
 		GrepCondition condition = new GrepCondition();
 
 		List<ContainingText> containingTexts = new ArrayList<ContainingText>();
-		ContainingText containingText1 = new ContainingText();
-		containingText1.setValue(txtContainingText1.getText());
-		ContainingText containingText2 = new ContainingText();
-		containingText2.setValue(txtContainingText2.getText());
-		ContainingText containingText3 = new ContainingText();
-		containingText3.setValue(txtContainingText3.getText());
+		ContainingText containingText1 = new ContainingText(txtContainingText1.getText());
+		ContainingText containingText2 = new ContainingText(txtContainingText2.getText());
+		ContainingText containingText3 = new ContainingText(txtContainingText3.getText());
 		containingTexts.add(containingText1);
 		containingTexts.add(containingText2);
 		containingTexts.add(containingText3);
@@ -269,8 +266,7 @@ public class GrepConditionPanel extends JPanel {
 		List<FileNamePattern> fileNamePatterns = new ArrayList<FileNamePattern>();
 		split = txtFileNamePatterns.getText().split("[\\s]*,[\\s]*");
 		for (String s : split) {
-			FileNamePattern fileNamePattern = new FileNamePattern();
-			fileNamePattern.setValue(s);
+			FileNamePattern fileNamePattern = new FileNamePattern(s);
 			fileNamePatterns.add(fileNamePattern);
 		}
 		condition.setFileNamePatterns(fileNamePatterns);
@@ -278,8 +274,7 @@ public class GrepConditionPanel extends JPanel {
 		List<FileNamePattern> excludeFileNamePatterns = new ArrayList<FileNamePattern>();
 		split = txtExcludeFileNamePatterns.getText().split("[\\s]*,[\\s]*");
 		for (String s : split) {
-			FileNamePattern fileNamePattern = new FileNamePattern();
-			fileNamePattern.setValue(s);
+			FileNamePattern fileNamePattern = new FileNamePattern(s);
 			excludeFileNamePatterns.add(fileNamePattern);
 		}
 		condition.setExcludeFileNamePatterns(excludeFileNamePatterns);
@@ -287,8 +282,7 @@ public class GrepConditionPanel extends JPanel {
 		List<TargetDirectory> targetDirectorys = new ArrayList<TargetDirectory>();
 		split = txtTargetDirectorys.getText().split("[\\s]*;[\\s]*");
 		for (String s : split) {
-			TargetDirectory targetDirectory = new TargetDirectory();
-			targetDirectory.setValue(s);
+			TargetDirectory targetDirectory = new TargetDirectory(s);
 			targetDirectorys.add(targetDirectory);
 		}
 		condition.setTargetDirectorys(targetDirectorys);

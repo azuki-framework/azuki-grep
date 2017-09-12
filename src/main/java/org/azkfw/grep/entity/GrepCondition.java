@@ -29,15 +29,15 @@ import javax.xml.bind.annotation.XmlElementWrapper;
  */
 public class GrepCondition {
 
-	private List<ContainingText> containingTexts;
+	private final List<ContainingText> containingTexts;
 
-	private List<FileNamePattern> fileNamePatterns;
+	private final List<FileNamePattern> fileNamePatterns;
 
-	private List<TargetDirectory> targetDirectorys;
+	private final List<TargetDirectory> targetDirectorys;
 
-	private List<FileNamePattern> excludeFileNamePatterns;
+	private final List<FileNamePattern> excludeFileNamePatterns;
 
-	private List<DirectoryNamePattern> excludeDirectoryNamePatterns;
+	private final List<DirectoryNamePattern> excludeDirectoryNamePatterns;
 
 	/**
 	 * コンストラクタ
@@ -51,8 +51,15 @@ public class GrepCondition {
 		excludeDirectoryNamePatterns = new ArrayList<DirectoryNamePattern>();
 	}
 
+	public void addContainingText(final ContainingText containingText) {
+		this.containingTexts.add(containingText);
+	}
+
 	public void setContainingTexts(final List<ContainingText> containingTexts) {
-		this.containingTexts = containingTexts;
+		this.containingTexts.clear();
+		if (null != containingTexts) {
+			this.containingTexts.addAll(containingTexts);
+		}
 	}
 
 	@XmlElementWrapper(name = "ContainingTexts")
@@ -61,8 +68,15 @@ public class GrepCondition {
 		return containingTexts;
 	}
 
+	public void addFileNamePattern(final FileNamePattern fileNamePattern) {
+		this.fileNamePatterns.add(fileNamePattern);
+	}
+
 	public void setFileNamePatterns(final List<FileNamePattern> fileNamePatterns) {
-		this.fileNamePatterns = fileNamePatterns;
+		this.fileNamePatterns.clear();
+		if (null != fileNamePatterns) {
+			this.fileNamePatterns.addAll(fileNamePatterns);
+		}
 	}
 
 	@XmlElementWrapper(name = "FileNamePatterns")
@@ -71,14 +85,55 @@ public class GrepCondition {
 		return fileNamePatterns;
 	}
 
+	public void addTargetDirectory(final TargetDirectory targetDirectory) {
+		this.targetDirectorys.add(targetDirectory);
+	}
+
 	public void setTargetDirectorys(final List<TargetDirectory> targetDirectorys) {
-		this.targetDirectorys = targetDirectorys;
+		this.targetDirectorys.clear();
+		if (null != targetDirectorys) {
+			this.targetDirectorys.addAll(targetDirectorys);
+		}
 	}
 
 	@XmlElementWrapper(name = "TargetDirectorys")
 	@XmlElement(name = "TargetDirectory")
 	public List<TargetDirectory> getTargetDirectorys() {
 		return targetDirectorys;
+	}
+
+	public void addExcludeFileNamePattern(final FileNamePattern fileNamePattern) {
+		this.excludeFileNamePatterns.add(fileNamePattern);
+	}
+
+	public void setExcludeFileNamePatterns(final List<FileNamePattern> fileNamePatterns) {
+		this.excludeFileNamePatterns.clear();
+		if (null != fileNamePatterns) {
+			this.excludeFileNamePatterns.addAll(fileNamePatterns);
+		}
+	}
+
+	@XmlElementWrapper(name = "ExcludeFileNamePatterns")
+	@XmlElement(name = "ExcludeFileNamePattern")
+	public List<FileNamePattern> getExcludeFileNamePatterns() {
+		return excludeFileNamePatterns;
+	}
+
+	public void addExcludeDirectoryNamePattern(final DirectoryNamePattern directoryNamePattern) {
+		this.excludeDirectoryNamePatterns.add(directoryNamePattern);
+	}
+
+	public void setExcludeDirectoryNamePatterns(final List<DirectoryNamePattern> directoryNamePatterns) {
+		this.excludeDirectoryNamePatterns.clear();
+		if (null != directoryNamePatterns) {
+			this.excludeDirectoryNamePatterns.addAll(directoryNamePatterns);
+		}
+	}
+
+	@XmlElementWrapper(name = "ExcludeDirectoryNamePatterns")
+	@XmlElement(name = "ExcludeDirectoryNamePattern")
+	public List<DirectoryNamePattern> getExcludeDirectoryNamePatterns() {
+		return excludeDirectoryNamePatterns;
 	}
 
 	public List<File> getTargetDirectoryFiles() {
@@ -88,25 +143,5 @@ public class GrepCondition {
 			files.add(new File(file.getAbsolutePath()));
 		}
 		return files;
-	}
-
-	public void setExcludeFileNamePatterns(final List<FileNamePattern> fileNamePatterns) {
-		this.excludeFileNamePatterns = fileNamePatterns;
-	}
-
-	@XmlElementWrapper(name = "ExcludeFileNamePatterns")
-	@XmlElement(name = "ExcludeFileNamePattern")
-	public List<FileNamePattern> getExcludeFileNamePatterns() {
-		return excludeFileNamePatterns;
-	}
-
-	public void setExcludeDirectoryNamePatterns(final List<DirectoryNamePattern> directoryNamePatterns) {
-		this.excludeDirectoryNamePatterns = directoryNamePatterns;
-	}
-
-	@XmlElementWrapper(name = "ExcludeDirectoryNamePatterns")
-	@XmlElement(name = "ExcludeDirectoryNamePattern")
-	public List<DirectoryNamePattern> getExcludeDirectoryNamePatterns() {
-		return excludeDirectoryNamePatterns;
 	}
 }

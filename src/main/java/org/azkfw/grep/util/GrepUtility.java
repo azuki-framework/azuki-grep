@@ -15,42 +15,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep.entity;
+package org.azkfw.grep.util;
 
-import java.util.regex.Pattern;
-
-import javax.xml.bind.annotation.XmlValue;
-
-import org.azkfw.grep.util.FormatUtility;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author Kawakicchi
+ *
  */
-public class FileNamePattern {
+public class GrepUtility {
 
-	private String value;
+	private GrepUtility() {
 
-	private Pattern pattern;
-
-	public FileNamePattern(final String value) {
-		setValue(value);
 	}
 
-	public void setValue(final String value) {
-		this.value = value;
+	public static boolean isNull(final Object object) {
+		return (null == object);
+	}
 
-		this.pattern = null;
-		if (null != value && 0 < value.length()) {
-			this.pattern = FormatUtility.getSimpleMatchPattern(value);
+	public static boolean isNotNull(final Object object) {
+		return (!isNull(object));
+	}
+
+	public static boolean isEmpty(final List<?> list) {
+		return (null == list || 0 == list.size());
+	}
+
+	public static boolean isEmpty(final String string) {
+		return (null == string || 0 == string.length());
+	}
+
+	public static void release(final InputStream stream) {
+		if (null != stream) {
+			try {
+				stream.close();
+			} catch (IOException ex) {
+
+			}
 		}
-	}
-
-	@XmlValue
-	public String getValue() {
-		return value;
-	}
-
-	public Pattern getPattern() {
-		return pattern;
 	}
 }
