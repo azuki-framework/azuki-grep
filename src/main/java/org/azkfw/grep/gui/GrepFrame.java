@@ -61,6 +61,7 @@ import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepMatchWord;
 import org.azkfw.grep.entity.GrepResult;
+import org.azkfw.grep.entity.GrepStatistics;
 import org.azkfw.grep.gui.FileTree.MatchFileObject;
 import org.azkfw.grep.gui.FileTree.MatchLineObject;
 import org.azkfw.grep.gui.style.DocumentStyle;
@@ -270,7 +271,8 @@ public class GrepFrame extends JFrame {
 
 			@Override
 			public void grepFinished(final GrepEvent e, final GrepResult r) {
-				String message = String.format("%d 件見つかりました", e.getSource().getStatistics().getFindFileCount());
+				GrepStatistics statistics = e.getSource().getStatistics();
+				String message = String.format("%d 件見つかりました", statistics.getHitFileCount());
 				statusBar.setMessage(message);
 
 				System.out.println(String.format("%.2f sec", (double) (r.getProcessingNanoTime()) / 1000000000.f));

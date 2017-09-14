@@ -105,26 +105,31 @@ public class GrepSearcher implements Runnable {
 
 	private static final Pattern PTN_RETURN_CR = Pattern.compile("\\r[^\\n]");
 
-	private CashFile getFile(final File file) throws IOException {
-		if (GrepUtility.isNotNull(store)) {
-			final CashFile cashFile = store.getFile(file);
-			if (GrepUtility.isNotNull(cashFile)) {
-				return cashFile;
+	private String rep1(final String src) {
+		return src.replaceAll(REGEX_REPLACE_LINE_SEPARATOR, "\n");
+	}
+
+	private String rep2(final String src) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < src.length(); i++) {
+			char c0 = src.charAt(i);
+			if ('\r' == c0) {
+				if (i + 1 < src.length()) {
+					char c1 = src.charAt(i + 1);
+					if ('\n' == c1) {
+						i++;
+					}
+				}
+				sb.append('\n');
+
+			} else if ('\n' == c0) {
+				sb.append('\n');
+
+			} else {
+				sb.append(c0);
 			}
 		}
-
-		String encode = getCharset(file);
-		if (GrepUtility.isEmpty(encode)) {
-			encode = systemEncode;
-		}
-
-		String text = FileUtils.readFileToString(file, encode);
-		if (0 < text.length() && text.charAt(0) == 65279) { // BOM UTF-8 marker
-			text = text.substring(1);
-		}
-
-		final CashFile cashFile = new CashFile(file, text, encode);
-		return cashFile;
+		return sb.toString();
 	}
 
 	private void search(final File file) {
@@ -133,27 +138,27 @@ public class GrepSearcher implements Runnable {
 
 			// ----------------------------------------------------
 			final String source1 = cashFile.getSource();
-			final String source2 = source1.replaceAll(REGEX_REPLACE_LINE_SEPARATOR, "\n");
-
-			// 改行コード取得
-			String lineSeparator = getLineSeparator(source1);
+			// final String source2 = rep1(source1);
+			final String source2 = rep2(source1);
 
 			final List<GrepMatchWord> matchWords = new ArrayList<GrepMatchWord>();
 
 			boolean matchFlag = true;
 			int patternIndex = 1;
-			List<ContainingText> containingTexts = condition.getContainingTexts();
-			for (ContainingText containingText : containingTexts) {
-				Pattern pattern = containingText.getPattern();
-				if (null != pattern) {
+			final List<ContainingText> containingTexts = condition.getContainingTexts();
+			for (final ContainingText containingText : containingTexts) {
+				final Pattern pattern = containingText.getPattern();
+				if (GrepUtility.isNotNull(pattern)) {
 					final Matcher m1 = pattern.matcher(source1);
 					final Matcher m2 = pattern.matcher(source2);
 
 					boolean find = false;
 					while (m1.find() && m2.find()) { // TODO: 該当チェック
-						String word = source1.substring(m1.start(), m1.end());
-						GrepMatchWord matchWord = new GrepMatchWord(patternIndex, word, m1.start(), m1.end(), m2.start(), m2.end());
+						final String word = source1.substring(m1.start(), m1.end());
+
+						final GrepMatchWord matchWord = new GrepMatchWord(patternIndex, word, m1.start(), m1.end(), m2.start(), m2.end());
 						matchWords.add(matchWord);
+
 						find = true;
 					}
 					if (!find) {
@@ -168,19 +173,20 @@ public class GrepSearcher implements Runnable {
 				// sort
 				Collections.sort(matchWords, new Comparator<GrepMatchWord>() {
 					@Override
-					public int compare(GrepMatchWord o1, GrepMatchWord o2) {
+					public int compare(final GrepMatchWord o1, final GrepMatchWord o2) {
 						return o1.getStart() - o2.getStart();
 					}
 				});
 
 				// line count
-				Matcher m = PTN_RETURN.matcher(source1);
+				final Matcher m = PTN_RETURN.matcher(source1);
 				int lineNo = 1;
 				int index = 0;
 				int last = 0;
 				while (m.find()) {
-					int start = m.start();
-					String line = source1.substring(last, start);
+					final int start = m.start();
+					final String line = source1.substring(last, start);
+
 					for (int i = index; i < matchWords.size(); i++) {
 						GrepMatchWord w = matchWords.get(i);
 						if (w.getStart() < start) {
@@ -198,19 +204,48 @@ public class GrepSearcher implements Runnable {
 					matchWords.get(i).setLine(lineNo, last, line);
 				}
 
-				final GrepMatchFile matchFile = new GrepMatchFile(file, file.length(), new Date(file.lastModified()), cashFile.getCharset(), lineSeparator,
-						matchWords);
+				final GrepMatchFile matchFile = new GrepMatchFile(file, file.length(), new Date(file.lastModified()), cashFile.getCharset(),
+						cashFile.getLineSeparator(), matchWords);
+
 				grep.findFile(matchFile);
 			}
 			// ----------------------------------------------------
 
-			if (GrepUtility.isNotNull(store)) {
-				store.push(cashFile);
-			}
-
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	private CashFile getFile(final File file) throws IOException {
+		if (GrepUtility.isNotNull(store)) {
+			final CashFile cashFile = store.getFile(file);
+			if (GrepUtility.isNotNull(cashFile)) {
+				if (cashFile.isMatch(file)) {
+					return cashFile;
+				}
+			}
+		}
+
+		String encode = getCharset(file);
+		if (GrepUtility.isEmpty(encode)) {
+			encode = systemEncode;
+		}
+
+		String text = FileUtils.readFileToString(file, encode);
+		if (0 < text.length() && text.charAt(0) == 65279) { // BOM UTF-8 marker
+			text = text.substring(1);
+		}
+
+		// 改行コード取得
+		final String lineSeparator = getLineSeparator(text);
+
+		final CashFile cashFile = new CashFile(file, encode, lineSeparator, text);
+
+		if (GrepUtility.isNotNull(store)) {
+			store.push(cashFile);
+		}
+
+		return cashFile;
 	}
 
 	private String getLineSeparator(final String source) {

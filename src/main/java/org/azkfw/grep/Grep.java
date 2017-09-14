@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Queue;
 
 import org.azkfw.grep.cash.CashStore;
+import org.azkfw.grep.entity.BasicGrepStatistics;
 import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepResult;
@@ -41,7 +42,7 @@ public class Grep {
 	/** Grep event listeners */
 	private final List<GrepListener> listeners;
 
-	private final MyGrepStatistics statistics;
+	private final BasicGrepStatistics statistics;
 
 	private final CashStore store;
 
@@ -63,7 +64,7 @@ public class Grep {
 		this.event = new GrepEvent(this);
 		this.listeners = new ArrayList<GrepListener>();
 
-		this.statistics = new MyGrepStatistics();
+		this.statistics = new BasicGrepStatistics();
 		this.store = store;
 
 		runningFlag = Boolean.FALSE;
@@ -200,17 +201,17 @@ public class Grep {
 	 * 
 	 * @param file ファイル
 	 */
-	void searchFile(final File file) {
+	synchronized void searchFile(final File file) {
 		statistics.countupSearchFile(file);
 	}
 
 	/**
 	 * Grep対象有無に関わらず見つけたディレクトリ
 	 * 
-	 * @param file ファイル
+	 * @param directory ディレクトリ
 	 */
-	void searchDirectory(final File directory) {
-
+	synchronized void searchDirectory(final File directory) {
+		statistics.countupSearchDirectory(directory);
 	}
 
 	/**
@@ -243,7 +244,7 @@ public class Grep {
 		// call listener finished
 		synchronized (listeners) {
 			matchFiles.add(matchFile);
-			statistics.countupFindFile(matchFile.getFile());
+			statistics.countupHitFile(matchFile.getFile());
 
 			listeners.forEach(l -> l.grepFindFile(event, matchFile));
 		}
@@ -257,42 +258,4 @@ public class Grep {
 		return true;
 	}
 
-	private class MyGrepStatistics implements GrepStatistics {
-
-		/** トータルファイル数 */
-		private long totalSearchFile;
-		/** Grep対象ファイル数 */
-		private long totalTargetFile;
-		/** 該当ファイル数 */
-		private long totalFindFile;
-
-		public void reset() {
-			totalSearchFile = 0;
-			totalTargetFile = 0;
-			totalFindFile = 0;
-		}
-
-		void countupSearchFile(final File file) {
-			totalSearchFile++;
-		}
-
-		void countupTargetFile(final File file) {
-			totalTargetFile++;
-		}
-
-		void countupFindFile(final File file) {
-			totalFindFile++;
-		}
-
-		public void print() {
-			System.out.println(String.format("SearchFile : %d", totalSearchFile));
-			System.out.println(String.format("TargetFile : %d", totalTargetFile));
-			System.out.println(String.format("FindFile   : %d", totalFindFile));
-		}
-
-		@Override
-		public long getFindFileCount() {
-			return totalFindFile;
-		}
-	}
 }

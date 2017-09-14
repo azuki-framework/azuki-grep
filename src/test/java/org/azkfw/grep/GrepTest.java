@@ -23,7 +23,9 @@ import org.azkfw.grep.cash.CashStore;
 import org.azkfw.grep.entity.ContainingText;
 import org.azkfw.grep.entity.FileNamePattern;
 import org.azkfw.grep.entity.GrepCondition;
+import org.azkfw.grep.entity.GrepStatistics;
 import org.azkfw.grep.entity.TargetDirectory;
+import org.azkfw.grep.util.FormatUtility;
 import org.junit.Test;
 
 /**
@@ -42,18 +44,36 @@ public class GrepTest extends TestCase {
 		condition.addFileNamePattern(new FileNamePattern("*.xml"));
 		condition.addFileNamePattern(new FileNamePattern("*.txt"));
 
-		CashStore store = new CashStore();
-		final Grep grep = new Grep(store);
-
-		final long tmStart = System.nanoTime();
-
-		for (int i = 0; i < 5; i++) {
-			grep.start(condition);
-			grep.waitFor();
+		{
+			Grep grep = new Grep();
+			for (int i = 0; i < 3; i++) {
+				final long tmStart = System.nanoTime();
+				grep.start(condition);
+				grep.waitFor();
+				final long tmEnd = System.nanoTime();
+				System.out.println(String.format("Cash OFF [%d] %f sec", i, (((double) tmEnd - tmStart) / 1000000000f)));
+			}
 		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException ex) {
 
-		final long tmEnd = System.nanoTime();
+		}
+		{
+			CashStore store = new CashStore();
+			Grep grep = new Grep(store);
+			for (int i = 0; i < 3; i++) {
+				final long tmStart = System.nanoTime();
+				grep.start(condition);
+				grep.waitFor();
+				final long tmEnd = System.nanoTime();
+				System.out.println(String.format("Cash ON  [%d] %f sec", i, (((double) tmEnd - tmStart) / 1000000000f)));
+			}
 
-		System.out.println(String.format("%fsec", (((double) tmEnd - tmStart) / 1000000000f)));
+			final GrepStatistics statistics = grep.getStatistics();
+			System.out.println(String.format("Total file size %d", statistics.getSearchFileCount()));
+			System.out.println(String.format("Target file size %d", statistics.getTargetFileCount()));
+			System.out.println(String.format("Read size %s", FormatUtility.byteToString(statistics.getTotalTargetFileLength())));
+		}
 	}
 }

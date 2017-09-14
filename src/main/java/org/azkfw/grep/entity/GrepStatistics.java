@@ -23,5 +23,38 @@ package org.azkfw.grep.entity;
  */
 public interface GrepStatistics {
 
-	public long getFindFileCount();
+	/**
+	 * 検索で見つけたファイル数
+	 * 
+	 * @return
+	 */
+	long getSearchFileCount();
+
+	/**
+	 * 検索で見つけたディレクトリ数
+	 * 
+	 * @return
+	 */
+	long getSearchDirectoryCount();
+
+	/**
+	 * Grep対象ファイル数
+	 * 
+	 * @return
+	 */
+	long getTargetFileCount();
+
+	/**
+	 * Grepで該当したファイルする。
+	 * 
+	 * @return
+	 */
+	long getHitFileCount();
+
+	/**
+	 * Grep対象ファイルの総サイズ
+	 * 
+	 * @return
+	 */
+	long getTotalTargetFileLength();
 }

@@ -19,9 +19,7 @@ package org.azkfw.grep.cash;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 /**
  * 
@@ -29,60 +27,34 @@ import java.util.Queue;
  */
 public class CashStore {
 
-	private Queue<CashFile> queueFiles;
-	private Map<String, CashFile> mapFiles;
-
-	private long maxCashSize;
-	private long nowCashSize;
+	private final Map<String, CashFile> mapFiles;
 
 	public CashStore() {
-		queueFiles = new LinkedList<CashFile>();
 		mapFiles = new HashMap<String, CashFile>();
-
-		maxCashSize = 100 * 1024 * 1024;
-		nowCashSize = 0;
 	}
 
 	public boolean push(final CashFile file) {
 		boolean result = false;
-		synchronized (queueFiles) {
-			String path = file.getFile().getAbsolutePath();
-			if (mapFiles.containsKey(path)) {
-				CashFile cf = mapFiles.get(path);
-				nowCashSize -= cf.getLength();
-				queueFiles.remove(cf);
-				mapFiles.remove(path);
-			}
 
-			while (maxCashSize < nowCashSize + file.getLength()) {
-				CashFile cf = queueFiles.poll();
-				if (null == cf) {
-					break;
-				}
-				nowCashSize -= cf.getLength();
-				mapFiles.remove(cf.getFile().getAbsolutePath());
-			}
+		final String path = file.getFile().getAbsolutePath();
 
-			if (maxCashSize >= nowCashSize + file.getLength()) {
-				mapFiles.put(path, file);
-				queueFiles.offer(file);
-				nowCashSize += file.getLength();
-				result = true;
-			}
+		synchronized (this) {
+			mapFiles.put(path, file);
+
 		}
+
 		return result;
 	}
 
 	public CashFile getFile(final File file) {
 		CashFile result = null;
-		String path = file.getAbsolutePath();
-		synchronized (queueFiles) {
-			if (mapFiles.containsKey(path)) {
-				result = mapFiles.get(path);
-				queueFiles.remove(result);
-				queueFiles.offer(result);
-			}
+
+		final String path = file.getAbsolutePath();
+
+		synchronized (this) {
+			result = mapFiles.get(path);
 		}
+
 		return result;
 	}
 

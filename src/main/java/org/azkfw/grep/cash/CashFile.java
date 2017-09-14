@@ -25,34 +25,92 @@ import java.io.File;
  */
 public class CashFile {
 
-	private File file;
+	/** ファイル */
+	private final File file;
+	/** サイズ */
+	private final long length;
+	/** 最終更新日時 */
+	private final long lastModified;
+	/** 文字コード */
+	private final String charset;
+	/** 改行コード */
+	private final String lineSeparator;
 
-	private String data;
-	
-	private long length;
-	
-	private String charset;
-	
-	public CashFile(final File file, final String data, final String charset) {
+	/** データ */
+	private final String data;
+
+	/**
+	 * コンストラクタ
+	 * 
+	 * @param file ファイル
+	 * @param charset 文字コード
+	 * @param data データ
+	 */
+	public CashFile(final File file, final String charset, final String lineSeparator, final String data) {
 		this.file = file;
-		this.data = data;
-		this.charset = charset;
 		this.length = file.length();
+		this.lastModified = file.lastModified();
+		this.charset = charset;
+		this.lineSeparator = lineSeparator;
+
+		this.data = data;
 	}
-	
+
+	/**
+	 * ファイルを取得する。
+	 * 
+	 * @return ファイル
+	 */
 	public File getFile() {
 		return file;
 	}
-	
-	public String getSource() {
-		return data;
-	}
-	
+
+	/**
+	 * ファイルサイズを取得する。
+	 * 
+	 * @return ファイルサイズ
+	 */
 	public long getLength() {
 		return length;
 	}
-	
+
+	/**
+	 * 最終更新日時を取得する。
+	 * 
+	 * @return 最終更新日時
+	 */
+	public long getLastModified() {
+		return lastModified;
+	}
+
+	/**
+	 * 文字コードを取得する。
+	 * 
+	 * @return 文字コード
+	 */
 	public String getCharset() {
 		return charset;
+	}
+
+	/**
+	 * 改行コードを取得する。
+	 * 
+	 * @return 改行コード
+	 */
+	public String getLineSeparator() {
+		return lineSeparator;
+	}
+
+	/**
+	 * データを取得する。
+	 * 
+	 * @return データ
+	 */
+	public String getSource() {
+		return data;
+	}
+
+	public boolean isMatch(final File file) {
+		return ((file.length() == length && file.lastModified() == lastModified));
 	}
 }
