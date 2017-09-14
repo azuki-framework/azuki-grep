@@ -32,6 +32,10 @@ public class FileNamePattern {
 
 	private Pattern pattern;
 
+	public FileNamePattern() {
+
+	}
+
 	public FileNamePattern(final String value) {
 		setValue(value);
 	}

@@ -32,6 +32,10 @@ public class DirectoryNamePattern {
 
 	private Pattern pattern;
 
+	public DirectoryNamePattern() {
+
+	}
+
 	public void setValue(final String value) {
 		this.value = value;
 		this.pattern = FormatUtility.getSimpleMatchPattern(value);

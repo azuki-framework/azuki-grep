@@ -27,6 +27,10 @@ public class TargetDirectory {
 
 	private String value;
 
+	public TargetDirectory() {
+
+	}
+
 	public TargetDirectory(final String value) {
 		setValue(value);
 	}

@@ -30,6 +30,10 @@ public class ContainingText {
 	private String value;
 	private Pattern pattern;
 
+	public ContainingText() {
+
+	}
+
 	public ContainingText(final String value) {
 		setValue(value);
 	}
