@@ -15,49 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep.util;
+package org.azkfw.grep.report;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import java.io.File;
+
+import org.azkfw.grep.entity.GrepResult;
 
 /**
  * @author Kawakicchi
  *
  */
-public class GrepUtility {
+public interface Report {
 
-	private GrepUtility() {
-
-	}
-
-	public static boolean isNull(final Object object) {
-		return (null == object);
-	}
-
-	public static boolean isNotNull(final Object object) {
-		return (!isNull(object));
-	}
-
-	public static boolean isEmpty(final List<?> list) {
-		return (null == list || 0 == list.size());
-	}
-
-	public static boolean isEmpty(final String string) {
-		return (null == string || 0 == string.length());
-	}
-
-	public static boolean isNotEmpty(final String string) {
-		return (!isEmpty(string));
-	}
-
-	public static void release(final InputStream stream) {
-		if (null != stream) {
-			try {
-				stream.close();
-			} catch (IOException ex) {
-
-			}
-		}
-	}
+	void export(GrepResult result, File file);
 }

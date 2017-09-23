@@ -29,6 +29,13 @@ import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.GrepMatchFile;
 import org.azkfw.grep.entity.GrepResult;
 import org.azkfw.grep.entity.GrepStatistics;
+import org.azkfw.grep.scanner.GrepScanner;
+import org.azkfw.grep.scanner.GrepScannerEvent;
+import org.azkfw.grep.scanner.GrepScannerListener;
+
+import searcher.GrepSearcher;
+import searcher.GrepSearcherEvent;
+import searcher.GrepSearcherListener;
 
 /**
  * このクラスは、Grepを行うクラスです。
@@ -42,24 +49,36 @@ public class Grep {
 	/** Grep event listeners */
 	private final List<GrepListener> listeners;
 
+	/** 統計情報 */
 	private final BasicGrepStatistics statistics;
-
+	/** キャッシュ */
 	private final CashStore store;
 
+	/** 実行フラグ */
 	private Boolean runningFlag;
-	@SuppressWarnings("unused")
+	/** 停止要求フラグ */
 	private Boolean stopRequest;
 
+	/** Grep条件情報 */
 	private GrepCondition condition;
 
+	/** マッチファイル一覧 */
 	private List<GrepMatchFile> matchFiles;
 
 	private int searcherSize = 2;
 
+	/**
+	 * コンストラクタ
+	 */
 	public Grep() {
 		this(null);
 	}
 
+	/**
+	 * コンストラクタ
+	 * 
+	 * @param store キャッシュ
+	 */
 	public Grep(final CashStore store) {
 		this.event = new GrepEvent(this);
 		this.listeners = new ArrayList<GrepListener>();
@@ -161,13 +180,81 @@ public class Grep {
 
 		files = new LinkedList<File>();
 
-		scanner = new Thread(new GrepScanner(this, condition));
+		scanner = new Thread(new GrepScanner(this, condition, new GrepScannerListener() {
+			@Override
+			public void grepScannerStart(GrepScannerEvent event) {
+
+			}
+
+			@Override
+			public void grepScannerEnd(GrepScannerEvent event) {
+
+			}
+
+			@Override
+			public void grepScannerFindFile(final File file, final GrepScannerEvent event) {
+				if (stopRequest) {
+					event.stop();
+				}
+				searchFile(file);
+			}
+
+			@Override
+			public void grepScannerFindDirectory(final File file, final GrepScannerEvent event) {
+				if (stopRequest) {
+					event.stop();
+				}
+				searchDirectory(file);
+			}
+
+			@Override
+			public void grepScannerTargetFile(final File file, final GrepScannerEvent event) {
+				offerFile(file);
+			}
+
+			@Override
+			public void grepScannerTargetDirectory(final File file, final GrepScannerEvent event) {
+			}
+		}));
 		scanner.setName("AzukiGrepScannerThread");
 		scanner.start();
 
 		searchers = new ArrayList<Thread>();
 		for (int i = 0; i < searcherSize; i++) {
-			Thread searcher = new Thread(new GrepSearcher(this, condition, store));
+			Thread searcher = new Thread(new GrepSearcher(this, condition, new GrepSearcherListener() {
+				@Override
+				public void grepSearcherStart(GrepSearcherEvent event) {
+
+				}
+
+				@Override
+				public void grepSearcherEnd(GrepSearcherEvent event) {
+
+				}
+
+				@Override
+				public File grepSearcherGetFile(GrepSearcherEvent event) {
+					if (stopRequest) {
+						event.stop();
+						return null;
+					}
+					if (isSearcherStop()) {
+						event.stop();
+						return null;
+					}
+					return pollFile();
+				}
+
+				@Override
+				public void grepSearcherMatchFile(final GrepMatchFile matchFile, final GrepSearcherEvent event) {
+					findFile(matchFile);
+				}
+
+				@Override
+				public void grepSearcherUnmatchFile(final File file, final GrepSearcherEvent event) {
+
+				}
+			}, store));
 			searcher.setName("AzukiGrepSearcherThread-" + (i + 1));
 			searchers.add(searcher);
 		}
@@ -250,6 +337,15 @@ public class Grep {
 		}
 	}
 
+	/**
+	 * スキャナー停止確認
+	 * <p>
+	 * スキャナーが定義済みかの判断を行う。<br/>
+	 * スキャナーが停止済みかつ、処理対象ファイルが0件の場合
+	 * </p>
+	 * 
+	 * @return 停止の場合、<code>true</code>を返す。
+	 */
 	boolean isSearcherStop() {
 		if (scanner.isAlive())
 			return false;

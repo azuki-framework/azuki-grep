@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package searcher;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.azkfw.grep.Grep;
 import org.azkfw.grep.cash.CashFile;
 import org.azkfw.grep.cash.CashStore;
 import org.azkfw.grep.entity.ContainingText;
@@ -47,6 +48,10 @@ public class GrepSearcher implements Runnable {
 	private final Grep grep;
 	/** Grep condition */
 	private final GrepCondition condition;
+	/** Listener event */
+	private final MyGrepSearcherEvent event;
+	/** Listener */
+	private final GrepSearcherListener listener;
 
 	/** Cash */
 	private final CashStore store;
@@ -58,10 +63,10 @@ public class GrepSearcher implements Runnable {
 	 * 
 	 * @param parent Grep
 	 * @param condition Grep condition
-	 * @param store Cash
+	 * @param listener Listener
 	 */
-	public GrepSearcher(final Grep parent, final GrepCondition condition) {
-		this(parent, condition, null);
+	public GrepSearcher(final Grep parent, final GrepCondition condition, final GrepSearcherListener listener) {
+		this(parent, condition, listener, null);
 	}
 
 	/**
@@ -69,11 +74,14 @@ public class GrepSearcher implements Runnable {
 	 * 
 	 * @param parent Grep
 	 * @param condition Grep condition
+	 * @param listener Listener
 	 * @param store Cash
 	 */
-	public GrepSearcher(final Grep parent, final GrepCondition condition, final CashStore store) {
+	public GrepSearcher(final Grep parent, final GrepCondition condition, final GrepSearcherListener listener, final CashStore store) {
 		this.grep = parent;
 		this.condition = condition;
+		this.event = new MyGrepSearcherEvent(this);
+		this.listener = listener;
 
 		this.store = store;
 		this.systemEncode = System.getProperty("file.encoding");
@@ -82,8 +90,11 @@ public class GrepSearcher implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (!grep.isSearcherStop()) {
-				final File file = grep.pollFile();
+			event.reset();
+			listener.grepSearcherStart(event);
+
+			while (!event.isStop()) {
+				final File file = listener.grepSearcherGetFile(event);
 				if (GrepUtility.isNotNull(file)) {
 					search(file);
 				} else {
@@ -92,6 +103,8 @@ public class GrepSearcher implements Runnable {
 			}
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
+		} finally {
+			listener.grepSearcherEnd(event);
 		}
 	}
 
@@ -207,7 +220,9 @@ public class GrepSearcher implements Runnable {
 				final GrepMatchFile matchFile = new GrepMatchFile(file, file.length(), new Date(file.lastModified()), cashFile.getCharset(),
 						cashFile.getLineSeparator(), matchWords);
 
-				grep.findFile(matchFile);
+				listener.grepSearcherMatchFile(matchFile, event);
+			} else {
+				listener.grepSearcherUnmatchFile(file, event);
 			}
 			// ----------------------------------------------------
 
@@ -299,5 +314,28 @@ public class GrepSearcher implements Runnable {
 			GrepUtility.release(stream);
 		}
 		return charset;
+	}
+
+	private class MyGrepSearcherEvent implements GrepSearcherEvent {
+
+		private boolean stop;
+
+		private MyGrepSearcherEvent(final GrepSearcher searcher) {
+			reset();
+		}
+
+		@Override
+		public void stop() {
+			stop = true;
+		}
+
+		private boolean isStop() {
+			return stop;
+		}
+
+		private void reset() {
+			stop = false;
+		}
+
 	}
 }

@@ -15,49 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep.util;
+package searcher;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import java.io.File;
+
+import org.azkfw.grep.entity.GrepMatchFile;
 
 /**
+ * このインターフェースは、サーチャーのイベントを定義したリスナーインターフェースです。
+ * 
  * @author Kawakicchi
  *
  */
-public class GrepUtility {
+public interface GrepSearcherListener {
 
-	private GrepUtility() {
+	void grepSearcherStart(GrepSearcherEvent event);
 
-	}
+	void grepSearcherEnd(GrepSearcherEvent event);
 
-	public static boolean isNull(final Object object) {
-		return (null == object);
-	}
+	File grepSearcherGetFile(GrepSearcherEvent event);
 
-	public static boolean isNotNull(final Object object) {
-		return (!isNull(object));
-	}
+	void grepSearcherMatchFile(GrepMatchFile matchFile, GrepSearcherEvent event);
 
-	public static boolean isEmpty(final List<?> list) {
-		return (null == list || 0 == list.size());
-	}
-
-	public static boolean isEmpty(final String string) {
-		return (null == string || 0 == string.length());
-	}
-
-	public static boolean isNotEmpty(final String string) {
-		return (!isEmpty(string));
-	}
-
-	public static void release(final InputStream stream) {
-		if (null != stream) {
-			try {
-				stream.close();
-			} catch (IOException ex) {
-
-			}
-		}
-	}
+	void grepSearcherUnmatchFile(File file, GrepSearcherEvent event);
 }

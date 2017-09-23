@@ -31,19 +31,26 @@ import javax.xml.bind.annotation.XmlElementWrapper;
  */
 public class GrepMatchFile {
 
-	private File file;
+	/** */
+	private final File file;
 
-	private long length;
-	
-	private Date lastModifiedDate;
+	/** */
+	private final long length;
 
-	private String charset;
+	/** */
+	private final Date lastModifiedDate;
 
-	private String lineSeparator;
+	/** */
+	private final String charset;
 
-	private List<GrepMatchWord> words;
+	/** */
+	private final String lineSeparator;
 
-	public GrepMatchFile(final File file, final long length, final Date lastModifiedDate, final String charset, final String lineSeparator, final List<GrepMatchWord> words) {
+	/** */
+	private final List<GrepMatchWord> words;
+
+	public GrepMatchFile(final File file, final long length, final Date lastModifiedDate, final String charset, final String lineSeparator,
+			final List<GrepMatchWord> words) {
 		this.file = file;
 		this.length = length;
 		this.lastModifiedDate = lastModifiedDate;
@@ -55,13 +62,13 @@ public class GrepMatchFile {
 	public File getFile() {
 		return file;
 	}
-	
-	@XmlElement(name="Path")
+
+	@XmlElement(name = "Path")
 	public String getPath() {
 		return file.getAbsolutePath();
 	}
-	
-	@XmlElement(name="Length")
+
+	@XmlElement(name = "Length")
 	public long getLength() {
 		return length;
 	}
@@ -70,7 +77,7 @@ public class GrepMatchFile {
 		return lastModifiedDate;
 	}
 
-	@XmlElement(name="Charset")
+	@XmlElement(name = "Charset")
 	public String getCharset() {
 		return charset;
 	}
@@ -79,7 +86,7 @@ public class GrepMatchFile {
 		return lineSeparator;
 	}
 
-	@XmlElement(name="LineSeparator")
+	@XmlElement(name = "LineSeparator")
 	public String getLineSeparatorToString() {
 		if (null == lineSeparator) {
 			return "";
@@ -93,8 +100,8 @@ public class GrepMatchFile {
 		return "";
 	}
 
-	@XmlElementWrapper(name="MatchWords")
-	@XmlElement(name="MatchWord")
+	@XmlElementWrapper(name = "MatchWords")
+	@XmlElement(name = "MatchWord")
 	public List<GrepMatchWord> getWords() {
 		return words;
 	}

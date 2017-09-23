@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.azkfw.grep;
+package org.azkfw.grep.scanner;
 
 import java.io.File;
 import java.util.List;
 
+import org.azkfw.grep.Grep;
 import org.azkfw.grep.entity.DirectoryNamePattern;
 import org.azkfw.grep.entity.FileNamePattern;
 import org.azkfw.grep.entity.GrepCondition;
@@ -36,32 +37,50 @@ public class GrepScanner implements Runnable {
 	private final Grep grep;
 	/** Grep condition */
 	private final GrepCondition condition;
+	/** Listener event */
+	private final MyGrepScannerEvent event;
+	/** Listener */
+	private final GrepScannerListener listener;
 
 	/**
 	 * コンストラクタ
 	 * 
 	 * @param parent Grep
 	 * @param condition Grep condition
+	 * @param listener Listener
 	 */
-	public GrepScanner(final Grep parent, final GrepCondition condition) {
+	public GrepScanner(final Grep parent, final GrepCondition condition, final GrepScannerListener listener) {
 		this.grep = parent;
 		this.condition = condition;
+		this.event = new MyGrepScannerEvent(this);
+		this.listener = listener;
 	}
 
 	@Override
 	public void run() {
-		final List<File> files = condition.getTargetDirectoryFiles();
-		for (final File file : files) {
-			if (file.isFile()) {
-				doFile(file);
-			} else if (file.isDirectory()) {
-				doDirectory(file);
+		try {
+			event.reset();
+			listener.grepScannerStart(event);
+
+			final List<File> files = condition.getTargetDirectoryFiles();
+			for (final File file : files) {
+				if (file.isFile()) {
+					doFile(file);
+				} else if (file.isDirectory()) {
+					doDirectory(file);
+				}
 			}
+		} finally {
+			listener.grepScannerEnd(event);
 		}
 	}
 
-	private boolean doFile(final File file) {
-		grep.searchFile(file);
+	/**
+	 * 
+	 * @param file
+	 */
+	private void doFile(final File file) {
+		listener.grepScannerFindFile(file, event);
 
 		final String name = file.getName();
 
@@ -69,26 +88,30 @@ public class GrepScanner implements Runnable {
 		final List<FileNamePattern> excludes = condition.getExcludeFileNamePatterns();
 		for (FileNamePattern exclude : excludes) {
 			if (exclude.getPattern().matcher(name).matches()) {
-				return false;
+				return;
 			}
 		}
 
 		final List<FileNamePattern> includes = condition.getFileNamePatterns();
 		if (GrepUtility.isEmpty(includes)) {
-			grep.offerFile(file);
+			listener.grepScannerTargetFile(file, event);
+
 		} else {
 			for (final FileNamePattern include : includes) {
 				if (include.getPattern().matcher(name).matches()) {
-					grep.offerFile(file);
+					listener.grepScannerTargetFile(file, event);
 					break;
 				}
 			}
 		}
-		return true;
 	}
 
-	private boolean doDirectory(final File directory) {
-		grep.searchDirectory(directory);
+	/**
+	 * 
+	 * @param directory
+	 */
+	private void doDirectory(final File directory) {
+		listener.grepScannerFindDirectory(directory, event);
 
 		final String name = directory.getName();
 
@@ -96,9 +119,11 @@ public class GrepScanner implements Runnable {
 		final List<DirectoryNamePattern> excludes = condition.getExcludeDirectoryNamePatterns();
 		for (DirectoryNamePattern exclude : excludes) {
 			if (exclude.getPattern().matcher(name).matches()) {
-				return false;
+				return;
 			}
 		}
+
+		listener.grepScannerTargetDirectory(directory, event);
 
 		final File[] files = directory.listFiles();
 		for (final File file : files) {
@@ -108,6 +133,27 @@ public class GrepScanner implements Runnable {
 				doDirectory(file);
 			}
 		}
-		return true;
+	}
+
+	private class MyGrepScannerEvent implements GrepScannerEvent {
+
+		private boolean stop;
+
+		private MyGrepScannerEvent(final GrepScanner scanner) {
+			reset();
+		}
+
+		@Override
+		public void stop() {
+			stop = true;
+		}
+
+		private boolean isStop() {
+			return stop;
+		}
+
+		private void reset() {
+			stop = false;
+		}
 	}
 }

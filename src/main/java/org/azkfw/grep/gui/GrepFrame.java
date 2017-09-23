@@ -66,6 +66,10 @@ import org.azkfw.grep.gui.FileTree.MatchFileObject;
 import org.azkfw.grep.gui.FileTree.MatchLineObject;
 import org.azkfw.grep.gui.style.DocumentStyle;
 import org.azkfw.grep.gui.style.DocumentStyleFactory;
+import org.azkfw.grep.report.ExcelReport;
+import org.azkfw.grep.report.HtmlReport;
+import org.azkfw.grep.report.Report;
+import org.azkfw.grep.report.XmlReport;
 
 /**
  * @author Kawakicchi
@@ -218,16 +222,37 @@ public class GrepFrame extends JFrame {
 		JAXB.marshal(pnlCondition.getCondition(), file);
 	}
 
+	/**
+	 * Grep結果をレポート(XML)を出力する。
+	 * 
+	 * @param result Grep結果
+	 * @param file 出力ファイル
+	 */
 	private void reportXML(final GrepResult result, final File file) {
-		JAXB.marshal(result, file);
+		final Report report = new XmlReport();
+		report.export(result, file);
 	}
 
+	/**
+	 * Grep結果をレポート(HTML)を出力する。
+	 * 
+	 * @param result Grep結果
+	 * @param file 出力ファイル
+	 */
 	private void reportHTML(final GrepResult result, final File file) {
-
+		final Report report = new HtmlReport();
+		report.export(result, file);
 	}
 
+	/**
+	 * Grep結果をレポート(Excel)を出力する。
+	 * 
+	 * @param result Grep結果
+	 * @param file 出力ファイル
+	 */
 	private void reportExcel(final GrepResult result, final File file) {
-
+		final Report report = new ExcelReport();
+		report.export(result, file);
 	}
 
 	private void doReportXML() {

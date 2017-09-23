@@ -46,6 +46,7 @@ import org.azkfw.grep.entity.DirectoryNamePattern;
 import org.azkfw.grep.entity.FileNamePattern;
 import org.azkfw.grep.entity.GrepCondition;
 import org.azkfw.grep.entity.TargetDirectory;
+import org.azkfw.grep.util.GrepUtility;
 
 /**
  * @author Kawakicchi
@@ -266,33 +267,41 @@ public class GrepConditionPanel extends JPanel {
 		List<FileNamePattern> fileNamePatterns = new ArrayList<FileNamePattern>();
 		split = txtFileNamePatterns.getText().split("[\\s]*,[\\s]*");
 		for (String s : split) {
-			FileNamePattern fileNamePattern = new FileNamePattern(s);
-			fileNamePatterns.add(fileNamePattern);
+			if (GrepUtility.isNotEmpty(s)) {
+				FileNamePattern fileNamePattern = new FileNamePattern(s);
+				fileNamePatterns.add(fileNamePattern);
+			}
 		}
 		condition.setFileNamePatterns(fileNamePatterns);
 
 		List<FileNamePattern> excludeFileNamePatterns = new ArrayList<FileNamePattern>();
 		split = txtExcludeFileNamePatterns.getText().split("[\\s]*,[\\s]*");
 		for (String s : split) {
-			FileNamePattern fileNamePattern = new FileNamePattern(s);
-			excludeFileNamePatterns.add(fileNamePattern);
+			if (GrepUtility.isNotEmpty(s)) {
+				FileNamePattern fileNamePattern = new FileNamePattern(s);
+				excludeFileNamePatterns.add(fileNamePattern);
+			}
 		}
 		condition.setExcludeFileNamePatterns(excludeFileNamePatterns);
 
 		List<TargetDirectory> targetDirectorys = new ArrayList<TargetDirectory>();
 		split = txtTargetDirectorys.getText().split("[\\s]*;[\\s]*");
 		for (String s : split) {
-			TargetDirectory targetDirectory = new TargetDirectory(s);
-			targetDirectorys.add(targetDirectory);
+			if (GrepUtility.isNotEmpty(s)) {
+				TargetDirectory targetDirectory = new TargetDirectory(s);
+				targetDirectorys.add(targetDirectory);
+			}
 		}
 		condition.setTargetDirectorys(targetDirectorys);
 
 		List<DirectoryNamePattern> excludeDirectoryNamePatterns = new ArrayList<DirectoryNamePattern>();
 		split = txtExcludeDirectoryNamePatterns.getText().split("[\\s]*,[\\s]*");
 		for (String s : split) {
-			DirectoryNamePattern directoryNamePattern = new DirectoryNamePattern();
-			directoryNamePattern.setValue(s);
-			excludeDirectoryNamePatterns.add(directoryNamePattern);
+			if (GrepUtility.isNotEmpty(s)) {
+				DirectoryNamePattern directoryNamePattern = new DirectoryNamePattern();
+				directoryNamePattern.setValue(s);
+				excludeDirectoryNamePatterns.add(directoryNamePattern);
+			}
 		}
 		condition.setExcludeDirectoryNamePatterns(excludeDirectoryNamePatterns);
 

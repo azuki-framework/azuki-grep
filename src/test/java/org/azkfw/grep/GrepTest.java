@@ -73,6 +73,7 @@ public class GrepTest extends TestCase {
 			final GrepStatistics statistics = grep.getStatistics();
 			System.out.println(String.format("Total file size %d", statistics.getSearchFileCount()));
 			System.out.println(String.format("Target file size %d", statistics.getTargetFileCount()));
+			System.out.println(String.format("Hit file size %d", statistics.getHitFileCount()));
 			System.out.println(String.format("Read size %s", FormatUtility.byteToString(statistics.getTotalTargetFileLength())));
 		}
 	}
